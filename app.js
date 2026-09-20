@@ -26,11 +26,14 @@ app.use(
 );
 app.use(flash());
 app.use((req, res, next) => {
-  res.locals.flash = {
-    success: req.flash("success"),
-    danger: req.flash("danger"),
-    warning: req.flash("warning"),
-  };
+  res.locals.flash =
+    req.method === "GET"
+      ? {
+          success: req.flash("success"),
+          danger: req.flash("danger"),
+          warning: req.flash("warning"),
+        }
+      : { success: [], danger: [], warning: [] };
   res.locals.currentPath = req.path;
   res.locals.empresa = req.session.empresa || null;
   res.locals.escapeHtml = (value) => String(value ?? "")

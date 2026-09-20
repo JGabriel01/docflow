@@ -146,7 +146,7 @@ async function enviarLink(req, res) {
       "Não foi possível enviar o link: verifique o contato cadastrado do cliente.",
     );
   }
-  res.redirect(`/processos/${req.params.id}`);
+  req.session.save(() => res.redirect(`/processos/${req.params.id}`));
 }
 function normalize(body) {
   const raw = Array.isArray(body.documentos)
