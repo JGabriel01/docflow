@@ -79,6 +79,12 @@ describe("fluxos HTTP do DocFlow", () => {
     await agent.post("/login").type("form").send({ email: novoEmail, senha: "senha1234" });
     const novoCliente = await agent.post("/clientes/novo").type("form").send({ nome: "Cliente Feliz", cpf: `7${String(sufixo).slice(-9)}` });
     expect(novoCliente.status).toBe(302);
+    const novoClienteRow = await prisma.cliente.findFirst({ where: { cpf: `7${String(sufixo).slice(-9)}` } });
+    const novoProcesso = await agent.post("/processos/novo").type("form").send({ clienteId: novoClienteRow.id, nomeProcesso: "Processo Feliz", documentos: "RG" });
+    expect(novoProcesso.status).toBe(302);
+    expect(novoProcesso.headers.location).toMatch(/^\/processos\/\d+$/);
+    const empresaFeliz = await prisma.empresa.findUnique({ where: { email: novoEmail } });
+    await prisma.empresa.delete({ where: { id: empresaFeliz.id } });
   });
 
   test("gera token UUID", async () => {
@@ -135,9 +141,24 @@ describe("fluxos HTTP do DocFlow", () => {
   test("retorna falha ao enviar link sem canal configurado", async () => {
     const agent = request.agent(app);
     await agent.post("/login").type("form").send({ email, senha: "senha1234" });
-    const response = await agent.post(`/processos/${processo.id}/enviar-link`).type("form").send({ canalEnvio: "EMAIL" });
+    const response = await agent.post(`/processos/${processo.id}/enviar-link`).type("form").send({ canalEnvio: "EMAIL" }).redirects(1);
+    expect(response.status).toBe(200);
+    expect(response.text).toContain("Não foi possível enviar o link: verifique o contato cadastrado do cliente.");
+  });
+
+  test("reaproveita somente documentos recebidos com o mesmo nome ao editar", async () => {
+    const processoRegressao = await prisma.processo.create({ data: { clienteId: cliente.id, nomeProcesso: "Checklist regressão", documentos: { create: [{ nomeDocumento: "RG" }, { nomeDocumento: "CPF" }] } }, include: { documentos: true } });
+    await prisma.documentoChecklist.updateMany({ where: { processoId: processoRegressao.id, nomeDocumento: "RG" }, data: { status: "RECEBIDO", arquivoPath: "storage/uploads/rg-original.pdf", dataEnvio: new Date() } });
+    await prisma.documentoChecklist.updateMany({ where: { processoId: processoRegressao.id, nomeDocumento: "CPF" }, data: { status: "RECEBIDO", arquivoPath: "storage/uploads/cpf-original.pdf", dataEnvio: new Date() } });
+    const agent = request.agent(app);
+    await agent.post("/login").type("form").send({ email, senha: "senha1234" });
+    const response = await agent.post(`/processos/${processoRegressao.id}/editar`).type("form").send({ nomeProcesso: "Checklist editada", documentos: "Comprovante\nRG\nCPF\nRenda" });
     expect(response.status).toBe(302);
-    expect(response.headers.location).toBe(`/processos/${processo.id}`);
+    const documentos = await prisma.documentoChecklist.findMany({ where: { processoId: processoRegressao.id }, orderBy: { id: "asc" } });
+    expect(documentos.find((doc) => doc.nomeDocumento === "Comprovante").status).toBe("PENDENTE");
+    expect(documentos.find((doc) => doc.nomeDocumento === "RG").arquivoPath).toBe("storage/uploads/rg-original.pdf");
+    expect(documentos.find((doc) => doc.nomeDocumento === "CPF").arquivoPath).toBe("storage/uploads/cpf-original.pdf");
+    await prisma.processo.delete({ where: { id: processoRegressao.id } });
   });
 
   test("rejeita documentos vazios ou maiores que 100 caracteres", async () => {

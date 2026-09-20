@@ -33,6 +33,13 @@ Se a porta 3000 estiver ocupada pelo Docker, use outra porta no PowerShell:
 $env:PORT=3001; npm run dev
 ```
 
+No Linux/macOS:
+
+```bash
+cp .env.example .env
+PORT=3001 npm run dev
+```
+
 O Plano Pro é configurado diretamente no banco para demonstração:
 
 ```sql
