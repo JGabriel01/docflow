@@ -1,0 +1,39 @@
+<%- include('partials/layout', { body: `
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <div>
+    <span class="eyebrow">VISÃO GERAL</span>
+    <h1>Processos</h1>
+  </div>
+  <a href="/processos/novo" class="btn btn-primary">Novo processo</a>
+</div>
+<div class="row g-3">
+  ${processos.map((processo) => {
+    const recebidos = processo.documentos.filter(
+      (doc) => doc.status === 'RECEBIDO',
+    ).length;
+    const badge =
+      processo.status === 'CONCLUIDO'
+        ? 'bg-success'
+        : 'bg-warning text-dark';
+    const status =
+      processo.status === 'CONCLUIDO' ? 'Concluído' : 'Em andamento';
+    return `
+  <div class="col-md-6">
+    <article class="process-card">
+      <div class="d-flex justify-content-between">
+        <span class="eyebrow">${processo.cliente.nome}</span>
+        <span class="badge ${badge}">${status}</span>
+      </div>
+      <h2>${processo.nomeProcesso}</h2>
+      <p class="text-muted">
+        ${recebidos} de ${processo.documentos.length} documentos recebidos
+      </p>
+      <a href="/processos/${processo.id}" class="stretched-link">
+        Ver processo
+      </a>
+    </article>
+  </div>
+  `;
+  }).join('') || '<div class="col-12"><div class="empty-state">Nenhum processo criado ainda.</div></div>'}
+</div>
+` }) %>

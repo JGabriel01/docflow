@@ -1,0 +1,40 @@
+<%- include('partials/layout', { body: `
+<div class="mb-4">
+  <span class="eyebrow">CONFIGURAÇÕES</span>
+  <h1>Perfil da empresa</h1>
+</div>
+<form method="post" action="/empresas/perfil" class="form-panel">
+  <label class="form-label">Razão social</label
+  ><input
+    class="form-control mb-1"
+    name="razaoSocial"
+    value="${form.razaoSocial || ''}"
+    required
+  />
+  <div class="invalid-feedback d-block mb-3">${errors.razaoSocial || ''}</div>
+  <label class="form-label">CNPJ</label
+  ><input
+    class="form-control mb-1"
+    name="cnpj"
+    value="${form.cnpj || ''}"
+    required
+  />
+  <div class="invalid-feedback d-block mb-3">${errors.cnpj || ''}</div>
+  <label class="form-label">E-mail</label
+  ><input
+    class="form-control mb-1"
+    type="email"
+    name="email"
+    value="${form.email || ''}"
+    required
+  />
+  <div class="invalid-feedback d-block mb-3">${errors.email || ''}</div>
+  <label class="form-label">Nova senha</label
+  ><input class="form-control mb-1" type="password" name="senha" />
+  <div class="invalid-feedback d-block mb-4">${errors.senha || ''}</div>
+  <button class="btn btn-primary">Salvar alterações</button>
+</form>
+<form method="post" action="/empresas/excluir" class="mt-4">
+  <button class="btn btn-link text-danger">Excluir conta</button>
+</form>
+` }) %>

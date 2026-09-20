@@ -1,0 +1,89 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+enum Plano {
+  GRATIS
+  PRO
+}
+
+enum StatusProcesso {
+  EM_ANDAMENTO
+  CONCLUIDO
+}
+
+enum StatusDocumento {
+  PENDENTE
+  RECEBIDO
+}
+
+model Empresa {
+  id          Int       @id @default(autoincrement())
+  razaoSocial String    @db.VarChar(150)
+  cnpj        String    @unique @db.VarChar(18)
+  email       String    @unique @db.VarChar(255)
+  senhaHash   String    @db.VarChar(255)
+  plano       Plano     @default(GRATIS)
+  ativa       Boolean   @default(true)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  clientes    Cliente[]
+}
+
+model Cliente {
+  id        Int        @id @default(autoincrement())
+  empresa   Empresa    @relation(fields: [empresaId], references: [id], onDelete: Cascade)
+  empresaId Int
+  nome      String     @db.VarChar(150)
+  cpf       String     @db.VarChar(14)
+  email     String?    @db.VarChar(255)
+  telefone  String?    @db.VarChar(20)
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+  processos Processo[]
+
+  @@unique([empresaId, cpf])
+}
+
+model Processo {
+  id            Int                  @id @default(autoincrement())
+  cliente       Cliente              @relation(fields: [clienteId], references: [id], onDelete: Cascade)
+  clienteId     Int
+  nomeProcesso  String               @db.VarChar(150)
+  tokenAcesso   String               @unique @default(uuid())
+  status        StatusProcesso       @default(EM_ANDAMENTO)
+  dataConclusao DateTime?
+  createdAt     DateTime             @default(now())
+  updatedAt     DateTime             @updatedAt
+  documentos    DocumentoChecklist[]
+  lembretes     LembreteEnviado[]
+}
+
+model DocumentoChecklist {
+  id            Int             @id @default(autoincrement())
+  processo      Processo        @relation(fields: [processoId], references: [id], onDelete: Cascade)
+  processoId    Int
+  nomeDocumento String          @db.VarChar(100)
+  status        StatusDocumento @default(PENDENTE)
+  arquivoPath   String?         @db.VarChar(255)
+  dataEnvio     DateTime?
+}
+
+model LembreteEnviado {
+  id            Int      @id @default(autoincrement())
+  processo      Processo @relation(fields: [processoId], references: [id], onDelete: Cascade)
+  processoId    Int
+  dataHoraEnvio DateTime @default(now())
+}
+
+model Session {
+  id        String   @id
+  sid       String   @unique
+  expiresAt DateTime
+  data      String   @db.Text
+}
