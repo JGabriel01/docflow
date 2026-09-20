@@ -5,22 +5,27 @@ const { body } = require("express-validator");
 const { collectValidationErrors } = require("../middlewares/validation");
 const router = express.Router();
 router.use(requireAuth);
+const documentosValidos = body("documentos").custom((value) => {
+  const nomes = [].concat(value ?? [])
+    .flatMap((item) => String(item).split(/\r?\n/))
+    .map((nome) => nome.trim())
+    .filter(Boolean);
+  if (!nomes.length)
+    throw new Error("Informe ao menos um documento.");
+  if (nomes.some((nome) => nome.length > 100))
+    throw new Error("Cada documento deve ter até 100 caracteres.");
+  return true;
+});
 const processoValidation = [
   body("clienteId").isInt({ min: 1 }).withMessage("Selecione um cliente."),
   body("nomeProcesso")
     .trim()
-    .isLength({ min: 1, max: 150 })
+    .notEmpty()
+    .withMessage("Informe o nome do processo.")
+    .bail()
+    .isLength({ max: 150 })
     .withMessage("O nome do processo deve ter até 150 caracteres."),
-  body("documentos").custom((value) => {
-    const items = Array.isArray(value) ? value : [value];
-    if (
-      !items.some(
-        (item) => item && item.split(/\r?\n/).some((name) => name.trim().length <= 100),
-      )
-    )
-      throw new Error("Informe ao menos um documento.");
-    return true;
-  }),
+  documentosValidos,
 ];
 router.get("/", controller.lista);
 router.get("/novo", controller.novoForm);
@@ -36,18 +41,12 @@ router.post(
   [
     body("nomeProcesso")
       .trim()
-      .isLength({ min: 1, max: 150 })
+      .notEmpty()
+      .withMessage("Informe o nome do processo.")
+      .bail()
+      .isLength({ max: 150 })
       .withMessage("O nome do processo deve ter até 150 caracteres."),
-    body("documentos").custom((value) => {
-      const items = Array.isArray(value) ? value : [value];
-      if (
-        !items.some(
-          (item) => item && item.split(/\r?\n/).some((name) => name.trim()),
-        )
-      )
-        throw new Error("Informe ao menos um documento.");
-      return true;
-    }),
+    documentosValidos,
     collectValidationErrors,
   ],
   controller.editar,

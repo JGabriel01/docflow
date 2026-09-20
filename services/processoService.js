@@ -1,3 +1,4 @@
+const fs = require("fs");
 const prisma = require("../lib/prisma");
 
 async function transactionWithRetry(callback) {
@@ -58,7 +59,7 @@ async function excluirProcesso(empresaId, id) {
 }
 
 async function atualizarChecklist(empresaId, id, { nomeProcesso, documentos }) {
-  return transactionWithRetry(async (tx) => {
+  const resultado = await transactionWithRetry(async (tx) => {
     const processo = await tx.processo.findFirst({
       where: { id, cliente: { empresaId }, status: "EM_ANDAMENTO" },
     });
@@ -81,7 +82,7 @@ async function atualizarChecklist(empresaId, id, { nomeProcesso, documentos }) {
         : { nomeDocumento };
     });
     const concluido = novosDocumentos.length > 0 && novosDocumentos.every((documento) => documento.status === "RECEBIDO");
-    return tx.processo.update({
+    const atualizado = await tx.processo.update({
       where: { id },
       data: {
         nomeProcesso,
@@ -93,7 +94,13 @@ async function atualizarChecklist(empresaId, id, { nomeProcesso, documentos }) {
       },
       include: { cliente: true, documentos: true },
     });
+    return { atualizado, arquivosAntigos: recebidos.map((documento) => documento.arquivoPath).filter(Boolean), arquivosMantidos: novosDocumentos.map((documento) => documento.arquivoPath).filter(Boolean) };
   });
+  const mantidos = new Set(resultado.arquivosMantidos);
+  for (const arquivo of resultado.arquivosAntigos) {
+    if (!mantidos.has(arquivo)) fs.rmSync(arquivo, { force: true });
+  }
+  return resultado.atualizado;
 }
 
 async function registrarUpload(tokenAcesso, documentoId, arquivoPath) {

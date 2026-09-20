@@ -28,22 +28,13 @@ async function enviar(req, res) {
       completed: false,
     });
   }
+  let result;
   try {
-    const result = await service.registrarUpload(
+    result = await service.registrarUpload(
       req.params.token,
       Number(req.body.documentoId),
       req.file.path,
     );
-    const atualizada = await service.obterProcessoPublico(req.params.token);
-    res.render("upload", {
-      title: "Enviar documentos",
-      processo: atualizada || { ...processo, status: "CONCLUIDO" },
-      error: null,
-      success: result.concluido
-        ? "Todos os documentos foram recebidos! Processo concluído."
-        : "Documento recebido com sucesso.",
-      completed: result.concluido,
-    });
   } catch (error) {
     fs.rmSync(req.file.path, { force: true });
     if (error.message === "LINK_INVALIDO")
@@ -58,7 +49,7 @@ async function enviar(req, res) {
         success: null,
         completed: false,
       });
-    res.status(200).render("upload", {
+    return res.status(200).render("upload", {
       title: "Enviar documentos",
       processo,
       error: "Não foi possível registrar este documento.",
@@ -66,6 +57,16 @@ async function enviar(req, res) {
       completed: false,
     });
   }
+  const atualizada = await service.obterProcessoPublico(req.params.token);
+  res.render("upload", {
+    title: "Enviar documentos",
+    processo: atualizada || { ...processo, status: "CONCLUIDO" },
+    error: null,
+    success: result.concluido
+      ? "Todos os documentos foram recebidos! Processo concluído."
+      : "Documento recebido com sucesso.",
+    completed: result.concluido,
+  });
 }
 
 async function baixar(req, res) {

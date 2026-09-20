@@ -139,10 +139,11 @@ async function enviarLink(req, res) {
     const envio = await envioService.enviarLink(processo, req.body.canalEnvio);
     await notificacaoService.enviar(envio);
     req.flash("success", "Link enviado ao cliente com sucesso.");
-  } catch {
+  } catch (error) {
+    console.error(`Falha ao enviar link do processo ${req.params.id}:`, error);
     req.flash(
       "danger",
-      "Não foi possível enviar o link: verifique o contato e a configuração do canal.",
+      "Não foi possível enviar o link: verifique o contato cadastrado do cliente.",
     );
   }
   res.redirect(`/processos/${req.params.id}`);

@@ -106,6 +106,27 @@ describe("fluxos HTTP do DocFlow", () => {
     );
   });
 
+  test("rejeita documentos vazios ou maiores que 100 caracteres", async () => {
+    const agent = request.agent(app);
+    await agent.post("/login").type("form").send({ email, senha: "senha1234" });
+
+    const vazio = await agent.post("/processos/novo").type("form").send({
+      clienteId: cliente.id,
+      nomeProcesso: "Checklist inválido",
+      documentos: "   \n  ",
+    });
+    expect(vazio.status).toBe(200);
+    expect(vazio.text).toContain("Informe ao menos um documento.");
+
+    const longo = await agent.post("/processos/novo").type("form").send({
+      clienteId: cliente.id,
+      nomeProcesso: "Checklist inválido",
+      documentos: "x".repeat(101),
+    });
+    expect(longo.status).toBe(200);
+    expect(longo.text).toContain("Cada documento deve ter até 100 caracteres.");
+  });
+
   test("recebe documentos e conclui o processo automaticamente", async () => {
     const invalido = await request(app)
       .post(`/upload/${processo.tokenAcesso}`)
