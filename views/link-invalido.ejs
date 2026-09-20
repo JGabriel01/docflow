@@ -14,8 +14,8 @@
     <main class="public-shell">
       <div class="public-panel">
         <div class="brand-mark">DocFlow</div>
-        <h1>Este link não é mais válido.</h1>
-        <p>Solicite um novo link à empresa responsável pelo seu processo.</p>
+        <h1><%= typeof message !== "undefined" ? message : "Este link não é mais válido." %></h1>
+        <p><%= typeof detail !== "undefined" ? detail : "Solicite um novo link à empresa responsável pelo seu processo." %></p>
       </div>
     </main>
   </body>

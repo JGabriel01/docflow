@@ -1,6 +1,6 @@
 <%- include('partials/layout', { body: `
 <section class="empty-state">
-  <h1>${message}</h1>
+  <h1>${escapeHtml(message)}</h1>
   <a href="/processos" class="btn btn-primary">Voltar ao painel</a>
 </section>
 ` }) %>

@@ -8,30 +8,30 @@
   ><input
     class="form-control mb-1"
     name="razaoSocial"
-    value="${form.razaoSocial || ''}"
+    value="${escapeHtml(form.razaoSocial || '')}"
     required
   />
-  <div class="invalid-feedback d-block mb-3">${errors.razaoSocial || ''}</div>
+  <div class="invalid-feedback d-block mb-3">${escapeHtml(errors.razaoSocial || '')}</div>
   <label class="form-label">CNPJ</label
   ><input
     class="form-control mb-1"
     name="cnpj"
-    value="${form.cnpj || ''}"
+    value="${escapeHtml(form.cnpj || '')}"
     required
   />
-  <div class="invalid-feedback d-block mb-3">${errors.cnpj || ''}</div>
+  <div class="invalid-feedback d-block mb-3">${escapeHtml(errors.cnpj || '')}</div>
   <label class="form-label">E-mail</label
   ><input
     class="form-control mb-1"
     type="email"
     name="email"
-    value="${form.email || ''}"
+    value="${escapeHtml(form.email || '')}"
     required
   />
-  <div class="invalid-feedback d-block mb-3">${errors.email || ''}</div>
+  <div class="invalid-feedback d-block mb-3">${escapeHtml(errors.email || '')}</div>
   <label class="form-label">Nova senha</label
   ><input class="form-control mb-1" type="password" name="senha" />
-  <div class="invalid-feedback d-block mb-4">${errors.senha || ''}</div>
+  <div class="invalid-feedback d-block mb-4">${escapeHtml(errors.senha || '')}</div>
   <button class="btn btn-primary">Salvar alterações</button>
 </form>
 <form method="post" action="/empresas/excluir" class="mt-4">

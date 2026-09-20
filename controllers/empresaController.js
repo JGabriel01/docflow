@@ -13,14 +13,14 @@ async function cadastro(req, res) {
   const errors = req.validationErrors || validate(form, true);
   if (Object.keys(errors).length)
     return res
-      .status(422)
+      .status(200)
       .render("empresa-cadastro", { title: "Criar conta", errors, form });
   try {
     await service.criarEmpresa(form);
     res.redirect("/login");
   } catch (error) {
     if (error.code === "P2002")
-      return res.status(422).render("empresa-cadastro", {
+      return res.status(200).render("empresa-cadastro", {
         title: "Criar conta",
         errors: { cnpj: "CNPJ ou e-mail já cadastrado." },
         form,
@@ -39,14 +39,14 @@ async function perfil(req, res) {
   const errors = req.validationErrors || {};
   if (Object.keys(errors).length)
     return res
-      .status(422)
+      .status(200)
       .render("perfil", { title: "Empresa", errors, form: req.body });
   try {
     await service.atualizarEmpresa(req.session.empresaId, req.body);
     res.redirect("/empresas/perfil");
   } catch (error) {
     if (error.code === "P2002")
-      return res.status(422).render("perfil", {
+      return res.status(200).render("perfil", {
         title: "Empresa",
         errors: { cnpj: "CNPJ ou e-mail já cadastrado." },
         form: req.body,

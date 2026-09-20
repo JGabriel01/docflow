@@ -10,7 +10,7 @@
   <input
     class="form-control"
     name="busca"
-    value="${busca}"
+    value="${escapeHtml(busca)}"
     placeholder="Buscar por nome ou CPF"
   /><button class="btn btn-outline-secondary">Buscar</button>
 </form>
@@ -27,9 +27,9 @@
     <tbody>
       ${clientes.map(cliente => `
       <tr>
-        <td><strong>${cliente.nome}</strong></td>
-        <td>${cliente.cpf}</td>
-        <td>${cliente.email || cliente.telefone || 'Sem contato'}</td>
+        <td><strong>${escapeHtml(cliente.nome)}</strong></td>
+        <td>${escapeHtml(cliente.cpf)}</td>
+        <td>${escapeHtml(cliente.email || cliente.telefone || 'Sem contato')}</td>
         <td class="text-end">
           <a
             class="btn btn-sm btn-outline-secondary"

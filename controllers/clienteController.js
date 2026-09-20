@@ -22,7 +22,7 @@ async function novoForm(req, res) {
 async function novo(req, res) {
   const errors = req.validationErrors || validate(req.body);
   if (Object.keys(errors).length)
-    return res.status(422).render("cliente-form", {
+    return res.status(200).render("cliente-form", {
       title: "Novo cliente",
       form: req.body,
       errors,
@@ -33,7 +33,7 @@ async function novo(req, res) {
     res.redirect("/clientes");
   } catch (error) {
     if (error.code === "P2002")
-      return res.status(422).render("cliente-form", {
+      return res.status(200).render("cliente-form", {
         title: "Novo cliente",
         form: req.body,
         errors: { cpf: "CPF já cadastrado nesta empresa." },
@@ -62,7 +62,7 @@ async function editarForm(req, res) {
 async function editar(req, res) {
   const errors = req.validationErrors || validate(req.body);
   if (Object.keys(errors).length)
-    return res.status(422).render("cliente-form", {
+    return res.status(200).render("cliente-form", {
       title: "Editar cliente",
       form: { ...req.body, id: req.params.id },
       errors,
@@ -77,7 +77,7 @@ async function editar(req, res) {
     res.redirect("/clientes");
   } catch (error) {
     if (error.code === "P2002")
-      return res.status(422).render("cliente-form", {
+      return res.status(200).render("cliente-form", {
         title: "Editar cliente",
         form: { ...req.body, id: req.params.id },
         errors: { cpf: "CPF já cadastrado nesta empresa." },

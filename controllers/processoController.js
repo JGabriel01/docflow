@@ -96,12 +96,21 @@ async function editar(req, res) {
       `/processos/${req.params.id}/editar`,
       "Editar processo",
     );
-  await service.atualizarChecklist(
-    req.session.empresaId,
-    Number(req.params.id),
-    form,
-  );
-  res.redirect(`/processos/${req.params.id}`);
+  try {
+    await service.atualizarChecklist(
+      req.session.empresaId,
+      Number(req.params.id),
+      form,
+    );
+    res.redirect(`/processos/${req.params.id}`);
+  } catch (error) {
+    if (error.message === "PROCESSO_NAO_ENCONTRADO")
+      return res.status(404).render("not-found", {
+        title: "Não encontrado",
+        message: "Processo não encontrado ou já concluído.",
+      });
+    throw error;
+  }
 }
 async function excluir(req, res) {
   await service.excluirProcesso(req.session.empresaId, Number(req.params.id));
@@ -149,7 +158,7 @@ function validate(form) {
 async function renderForm(req, res, form, errors, action, title) {
   const clientes = await clienteService.listarClientes(req.session.empresaId);
   res
-    .status(422)
+    .status(200)
     .render("processo-form", { title, clientes, form, errors, action });
 }
 

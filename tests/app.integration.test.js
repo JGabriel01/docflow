@@ -74,7 +74,7 @@ describe("fluxos HTTP do DocFlow", () => {
       nomeProcesso: "Duplicado",
       documentos: "RG",
     });
-    expect(response.status).toBe(422);
+    expect(response.status).toBe(200);
     expect(response.text).toContain(
       "Este cliente já possui um processo em andamento.",
     );

@@ -11,10 +11,16 @@ services:
       - "3306:3306"
     volumes:
       - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-udocflow", "-pdocflow"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
   app:
     build: .
     depends_on:
-      - db
+      db:
+        condition: service_healthy
     environment:
       DATABASE_URL: mysql://docflow:docflow@db:3306/docflow
       SESSION_SECRET: change-me-in-production
@@ -32,6 +38,7 @@ services:
     ports:
       - "3000:3000"
     volumes:
-      - ./public/uploads:/app/public/uploads
+      - ./storage/uploads:/app/storage/uploads
+    command: sh -c "npx prisma migrate deploy && npm start"
 volumes:
   mysql_data:

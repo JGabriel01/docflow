@@ -1,4 +1,6 @@
+const fs = require("fs");
 const service = require("../services/processoService");
+const upload = require("../middlewares/upload");
 
 async function tela(req, res) {
   const processo = await service.obterProcessoPublico(req.params.token);
@@ -15,13 +17,15 @@ async function enviar(req, res) {
   const processo = await service.obterProcessoPublico(req.params.token);
   if (!processo)
     return res.status(404).render("link-invalido", { title: "Link inválido" });
-  if (!req.file)
-    return res.status(422).render("upload", {
+  if (!req.file || !upload.assinaturaValida(req.file.path, req.file.mimetype)) {
+    if (req.file) fs.rmSync(req.file.path, { force: true });
+    return res.status(200).render("upload", {
       title: "Enviar documentos",
       processo,
       error: "Formato de arquivo não permitido. Envie PDF, JPG ou PNG.",
       success: null,
     });
+  }
   try {
     const result = await service.registrarUpload(
       req.params.token,
@@ -42,7 +46,7 @@ async function enviar(req, res) {
       return res
         .status(404)
         .render("link-invalido", { title: "Link inválido" });
-    res.status(422).render("upload", {
+    res.status(200).render("upload", {
       title: "Enviar documentos",
       processo,
       error: "Não foi possível registrar este documento.",
@@ -51,4 +55,10 @@ async function enviar(req, res) {
   }
 }
 
-module.exports = { tela, enviar };
+async function baixar(req, res) {
+  const documento = await service.obterDocumento(req.session.empresaId, Number(req.params.id));
+  if (!documento || !fs.existsSync(documento.arquivoPath)) return res.status(404).render("not-found", { title: "Não encontrado", message: "Documento não encontrado." });
+  res.download(documento.arquivoPath, documento.nomeDocumento);
+}
+
+module.exports = { tela, enviar, baixar };

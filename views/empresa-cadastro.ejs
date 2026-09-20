@@ -7,30 +7,30 @@
     ><input
       class="form-control mb-2"
       name="razaoSocial"
-      value="${form.razaoSocial || ''}"
+      value="${escapeHtml(form.razaoSocial || '')}"
       required
     />
-    <div class="invalid-feedback d-block">${errors.razaoSocial || ''}</div>
+    <div class="invalid-feedback d-block">${escapeHtml(errors.razaoSocial || '')}</div>
     <label class="form-label mt-2">CNPJ</label
     ><input
       class="form-control mb-2"
       name="cnpj"
-      value="${form.cnpj || ''}"
+      value="${escapeHtml(form.cnpj || '')}"
       required
     />
-    <div class="invalid-feedback d-block">${errors.cnpj || ''}</div>
+    <div class="invalid-feedback d-block">${escapeHtml(errors.cnpj || '')}</div>
     <label class="form-label mt-2">E-mail</label
     ><input
       class="form-control mb-2"
       type="email"
       name="email"
-      value="${form.email || ''}"
+      value="${escapeHtml(form.email || '')}"
       required
     />
-    <div class="invalid-feedback d-block">${errors.email || ''}</div>
+    <div class="invalid-feedback d-block">${escapeHtml(errors.email || '')}</div>
     <label class="form-label mt-2">Senha</label
     ><input class="form-control mb-3" type="password" name="senha" required />
-    <div class="invalid-feedback d-block">${errors.senha || ''}</div>
+    <div class="invalid-feedback d-block">${escapeHtml(errors.senha || '')}</div>
     <button class="btn btn-primary w-100">Cadastrar empresa</button>
   </form>
   <a class="d-block mt-3 text-center" href="/login">Já tenho uma conta</a>

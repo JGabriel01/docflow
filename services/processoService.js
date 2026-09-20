@@ -23,7 +23,7 @@ async function criarProcesso(
       },
       include: { cliente: true, documentos: true },
     });
-  });
+  }, { isolationLevel: "Serializable" });
 }
 
 async function listarProcessos(empresaId) {
@@ -51,13 +51,28 @@ async function atualizarChecklist(empresaId, id, { nomeProcesso, documentos }) {
       where: { id, cliente: { empresaId }, status: "EM_ANDAMENTO" },
     });
     if (!processo) throw new Error("PROCESSO_NAO_ENCONTRADO");
+    const recebidos = await tx.documentoChecklist.findMany({
+      where: { processoId: id, status: "RECEBIDO" },
+    });
     await tx.documentoChecklist.deleteMany({ where: { processoId: id } });
     return tx.processo.update({
       where: { id },
       data: {
         nomeProcesso,
         documentos: {
-          create: documentos.map((nomeDocumento) => ({ nomeDocumento })),
+          create: documentos.map((nomeDocumento) => {
+            const anterior = recebidos.find(
+              (documento) => documento.nomeDocumento === nomeDocumento,
+            );
+            return anterior
+              ? {
+                  nomeDocumento,
+                  status: "RECEBIDO",
+                  arquivoPath: anterior.arquivoPath,
+                  dataEnvio: anterior.dataEnvio,
+                }
+              : { nomeDocumento };
+          }),
         },
       },
       include: { cliente: true, documentos: true },
@@ -77,10 +92,11 @@ async function registrarUpload(tokenAcesso, documentoId, arquivoPath) {
       where: { id: documentoId, processoId: processo.id, status: "PENDENTE" },
     });
     if (!documento) throw new Error("DOCUMENTO_INVALIDO");
-    await tx.documentoChecklist.update({
-      where: { id: documento.id },
+    const atualizado = await tx.documentoChecklist.updateMany({
+      where: { id: documento.id, processoId: processo.id, status: "PENDENTE" },
       data: { status: "RECEBIDO", arquivoPath, dataEnvio: new Date() },
     });
+    if (atualizado.count !== 1) throw new Error("DOCUMENTO_INVALIDO");
     const pendentes = await tx.documentoChecklist.count({
       where: { processoId: processo.id, status: "PENDENTE" },
     });
@@ -91,7 +107,7 @@ async function registrarUpload(tokenAcesso, documentoId, arquivoPath) {
         data: { status: "CONCLUIDO", dataConclusao: new Date() },
       });
     return { processo, concluido };
-  });
+  }, { isolationLevel: "Serializable" });
 }
 
 async function obterProcessoPublico(tokenAcesso) {
@@ -103,6 +119,10 @@ async function obterProcessoPublico(tokenAcesso) {
   return processo;
 }
 
+async function obterDocumento(empresaId, id) {
+  return prisma.documentoChecklist.findFirst({ where: { id, processo: { cliente: { empresaId } } } });
+}
+
 module.exports = {
   criarProcesso,
   listarProcessos,
@@ -111,4 +131,5 @@ module.exports = {
   atualizarChecklist,
   registrarUpload,
   obterProcessoPublico,
+  obterDocumento,
 };

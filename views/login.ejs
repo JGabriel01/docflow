@@ -9,11 +9,11 @@
       class="form-control mb-3"
       type="email"
       name="email"
-      value="${form.email || ''}"
+      value="${escapeHtml(form.email || '')}"
       required
     /><label class="form-label">Senha</label
     ><input class="form-control mb-2" type="password" name="senha" required />
-    <div class="invalid-feedback d-block mb-3">${errors.senha || ''}</div>
+    <div class="invalid-feedback d-block mb-3">${escapeHtml(errors.senha || '')}</div>
     <button class="btn btn-primary w-100">Entrar</button>
   </form>
   <a class="d-block mt-3 text-center" href="/empresas/cadastro"

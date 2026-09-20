@@ -69,8 +69,8 @@
           >
         </td>
         <td>
-          ${doc.dataEnvio ? new Date(doc.dataEnvio).toLocaleDateString('pt-BR')
-          : 'Aguardando'}
+          ${doc.dataEnvio ? new Date(doc.dataEnvio).toLocaleDateString('pt-BR') : 'Aguardando'}
+          ${doc.status === 'RECEBIDO' ? `<a class="btn btn-sm btn-link" href="/upload/documentos/${doc.id}/download">Baixar</a>` : ''}
         </td>
       </tr>
       `).join('')}

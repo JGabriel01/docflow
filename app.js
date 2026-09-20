@@ -1,4 +1,5 @@
 require("dotenv").config();
+require("express-async-errors");
 const express = require("express");
 const session = require("express-session");
 const flash = require("connect-flash");
@@ -32,6 +33,12 @@ app.use((req, res, next) => {
   };
   res.locals.currentPath = req.path;
   res.locals.empresa = req.session.empresa || null;
+  res.locals.escapeHtml = (value) => String(value ?? "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
   next();
 });
 app.use("/", require("./routes/auth"));
@@ -44,9 +51,10 @@ app.get("/", (req, res) =>
 );
 app.use((error, req, res, next) => {
   if (error.code === "LIMIT_FILE_SIZE")
-    return res.status(422).render("link-invalido", {
+    return res.status(200).render("link-invalido", {
       title: "Arquivo inválido",
       message: "O arquivo deve ter no máximo 10 MB.",
+      detail: "Envie um PDF, JPG ou PNG com até 10 MB.",
     });
   next(error);
 });

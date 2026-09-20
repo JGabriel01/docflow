@@ -8,29 +8,29 @@
   ><input
     class="form-control mb-1"
     name="nome"
-    value="${form.nome || ''}"
+    value="${escapeHtml(form.nome || '')}"
     required
   />
-  <div class="invalid-feedback d-block mb-3">${errors.nome || ''}</div>
+  <div class="invalid-feedback d-block mb-3">${escapeHtml(errors.nome || '')}</div>
   <label class="form-label">CPF</label
   ><input
     class="form-control mb-1"
     name="cpf"
-    value="${form.cpf || ''}"
+    value="${escapeHtml(form.cpf || '')}"
     required
   />
-  <div class="invalid-feedback d-block mb-3">${errors.cpf || ''}</div>
+  <div class="invalid-feedback d-block mb-3">${escapeHtml(errors.cpf || '')}</div>
   <label class="form-label">E-mail</label
   ><input
     class="form-control mb-3"
     type="email"
     name="email"
-    value="${form.email || ''}"
+    value="${escapeHtml(form.email || '')}"
   /><label class="form-label">Telefone / WhatsApp</label
   ><input
     class="form-control mb-4"
     name="telefone"
-    value="${form.telefone || ''}"
+    value="${escapeHtml(form.telefone || '')}"
   /><button class="btn btn-primary">Salvar cliente</button>
   <a class="btn btn-link" href="/clientes">Cancelar</a>
 </form>

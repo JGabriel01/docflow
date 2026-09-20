@@ -21,13 +21,17 @@ async function enviarLembretesPendentes() {
     if (ultimo && ultimo.dataHoraEnvio > limite) continue;
     const canal = processo.cliente.email ? "EMAIL" : "WHATSAPP";
     if (!notificacaoService.configurado(canal)) continue;
-    const envio = await envioService.enviarLink(processo, canal);
-    await notificacaoService.enviar({
-      ...envio,
-      assunto: "Lembrete do seu checklist DocFlow",
-    });
-    await prisma.lembreteEnviado.create({ data: { processoId: processo.id } });
-    enviados += 1;
+    try {
+      const envio = await envioService.enviarLink(processo, canal);
+      await notificacaoService.enviar({
+        ...envio,
+        assunto: "Lembrete do seu checklist DocFlow",
+      });
+      await prisma.lembreteEnviado.create({ data: { processoId: processo.id } });
+      enviados += 1;
+    } catch (error) {
+      console.error(`Falha ao enviar lembrete do processo ${processo.id}:`, error);
+    }
   }
   return enviados;
 }
