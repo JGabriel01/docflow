@@ -1,18 +1,18 @@
 <%- include('partials/layout', { body: `
 <div class="mb-4">
   <span class="eyebrow">PLANO PRO</span>
-  <h1>Histórico de ${cliente.nome}</h1>
+  <h1>Histórico de ${escapeHtml(cliente.nome)}</h1>
 </div>
 ${cliente.processos.map(processo => `
 <section class="process-card mb-3">
-  <h2>${processo.nomeProcesso}</h2>
+  <h2>${escapeHtml(processo.nomeProcesso)}</h2>
   <p class="text-muted">
     ${processo.documentos.filter(doc => doc.status === 'RECEBIDO').length}
     documentos recebidos
   </p>
   <ul>
     ${processo.documentos.map(doc => `
-    <li>${doc.nomeDocumento}: ${doc.status}</li>
+    <li>${escapeHtml(doc.nomeDocumento)}: ${escapeHtml(doc.status)}</li>
     `).join('')}
   </ul>
 </section>

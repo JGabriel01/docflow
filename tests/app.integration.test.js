@@ -66,6 +66,32 @@ describe("fluxos HTTP do DocFlow", () => {
     expect(painel.text).toContain("Checklist de Integração");
   });
 
+  test("não repete empresa ou cliente com identificador duplicado", async () => {
+    const empresaDuplicada = await request(app)
+      .post("/empresas/cadastro")
+      .type("form")
+      .send({ razaoSocial: "Duplicada", cnpj, email: `outro-${email}`, senha: "senha1234" });
+    expect(empresaDuplicada.status).toBe(200);
+    expect(empresaDuplicada.text).toContain("CNPJ já cadastrado.");
+
+    const agent = request.agent(app);
+    await agent.post("/login").type("form").send({ email, senha: "senha1234" });
+    const clienteDuplicado = await agent
+      .post("/clientes/novo")
+      .type("form")
+      .send({ nome: "Duplicado", cpf: cliente.cpf, email: "outro@example.com" });
+    expect(clienteDuplicado.status).toBe(200);
+    expect(clienteDuplicado.text).toContain("CPF já cadastrado nesta empresa.");
+  });
+
+  test("não armazena senha na sessão", async () => {
+    await prisma.session.deleteMany({ where: { data: { contains: email } } });
+    const agent = request.agent(app);
+    await agent.post("/login").type("form").send({ email, senha: "senha1234" });
+    const sessoes = await prisma.session.findMany({ where: { data: { contains: email } } });
+    expect(sessoes.every((sessao) => !sessao.data.includes("senhaHash"))).toBe(true);
+  });
+
   test("bloqueia segundo processo em andamento para o mesmo cliente", async () => {
     const agent = request.agent(app);
     await agent.post("/login").type("form").send({ email, senha: "senha1234" });
@@ -81,6 +107,13 @@ describe("fluxos HTTP do DocFlow", () => {
   });
 
   test("recebe documentos e conclui o processo automaticamente", async () => {
+    const invalido = await request(app)
+      .post(`/upload/${processo.tokenAcesso}`)
+      .field("documentoId", String(processo.documentos[0].id))
+      .attach("arquivo", Buffer.from("<html>não é PDF</html>"), "rg.pdf");
+    expect(invalido.status).toBe(200);
+    expect(invalido.text).toContain("Formato de arquivo não permitido");
+
     const primeiro = await request(app)
       .post(`/upload/${processo.tokenAcesso}`)
       .field("documentoId", String(processo.documentos[0].id))
@@ -102,6 +135,16 @@ describe("fluxos HTTP do DocFlow", () => {
     });
     expect(atualizado.status).toBe("CONCLUIDO");
     expect(atualizado.dataConclusao).toBeTruthy();
+  });
+
+  test("protege histórico grátis e download sem sessão", async () => {
+    const historico = await request(app).get(`/clientes/${cliente.id}/historico`);
+    expect(historico.status).toBe(302);
+    expect(historico.headers.location).toBe("/login");
+
+    const download = await request(app).get(`/upload/documentos/${processo.documentos[0].id}/download`);
+    expect(download.status).toBe(302);
+    expect(download.headers.location).toBe("/login");
   });
 
   test("não expõe dados ao acessar token inválido ou expirado", async () => {

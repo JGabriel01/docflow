@@ -22,4 +22,8 @@ async function excluirEmpresa(id) {
   return prisma.empresa.delete({ where: { id } });
 }
 
-module.exports = { criarEmpresa, atualizarEmpresa, excluirEmpresa };
+async function obterEmpresa(id) {
+  return prisma.empresa.findUnique({ where: { id } });
+}
+
+module.exports = { criarEmpresa, atualizarEmpresa, excluirEmpresa, obterEmpresa };

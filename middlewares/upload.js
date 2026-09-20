@@ -7,7 +7,10 @@ const uploadDir = path.join(__dirname, "..", "storage", "uploads");
 fs.mkdirSync(uploadDir, { recursive: true });
 const storage = multer.diskStorage({
   destination: uploadDir,
-  filename: (req, file, callback) => callback(null, `${Date.now()}-${crypto.randomUUID()}`),
+  filename: (req, file, callback) => {
+    const extension = path.extname(file.originalname).toLowerCase();
+    callback(null, `${Date.now()}-${crypto.randomUUID()}${extension}`);
+  },
 });
 const fileFilter = (req, file, callback) => {
   const allowed = ["application/pdf", "image/jpeg", "image/png"];

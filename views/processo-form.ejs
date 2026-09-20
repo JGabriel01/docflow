@@ -1,1 +1,26 @@
-<%- include('partials/layout', { body: `<div class="mb-4"><span class="eyebrow">CHECKLIST</span><h1>${title}</h1></div><form method="post" action="${action}" class="form-panel"><label class="form-label">Cliente</label><select class="form-select mb-1" name="clienteId" ${title === 'Editar processo' ? 'disabled' : 'required'}><option value="">Selecione</option>${clientes.map(cliente => `<option value="${cliente.id}" ${String(form.clienteId) === String(cliente.id) ? 'selected' : ''}>${cliente.nome} · ${cliente.cpf}</option>`).join('')}</select><div class="invalid-feedback d-block mb-3">${errors.clienteId || ''}</div><label class="form-label">Nome do processo</label><input class="form-control mb-1" name="nomeProcesso" value="${form.nomeProcesso || ''}" required><div class="invalid-feedback d-block mb-3">${errors.nomeProcesso || ''}</div><label class="form-label">Documentos exigidos</label><p class="text-muted small">Use uma linha por documento.</p><textarea class="form-control mb-1" name="documentos" rows="6" required>${(form.documentos || []).join('\n')}</textarea><div class="invalid-feedback d-block mb-4">${errors.documentos || ''}</div><button class="btn btn-primary">Salvar checklist</button> <a class="btn btn-link" href="/processos">Cancelar</a></form>` }) %>
+<%- include('partials/layout', { body: `
+<div class="mb-4">
+  <span class="eyebrow">CHECKLIST</span>
+  <h1>${escapeHtml(title)}</h1>
+</div>
+<form method="post" action="${escapeHtml(action)}" class="form-panel">
+  <label class="form-label">Cliente</label>
+  <select class="form-select mb-1" name="clienteId" ${title === 'Editar processo' ? 'disabled' : 'required'}>
+    <option value="">Selecione</option>
+    ${clientes.map((cliente) => `<option value="${escapeHtml(cliente.id)}" ${String(form.clienteId) === String(cliente.id) ? 'selected' : ''}>${escapeHtml(cliente.nome)} · ${escapeHtml(cliente.cpf)}</option>`).join('')}
+  </select>
+  <div class="invalid-feedback d-block mb-3">${escapeHtml(errors.clienteId || '')}</div>
+
+  <label class="form-label">Nome do processo</label>
+  <input class="form-control mb-1" name="nomeProcesso" value="${escapeHtml(form.nomeProcesso || '')}" required>
+  <div class="invalid-feedback d-block mb-3">${escapeHtml(errors.nomeProcesso || '')}</div>
+
+  <label class="form-label">Documentos exigidos</label>
+  <p class="text-muted small">Use uma linha por documento.</p>
+  <textarea class="form-control mb-1" name="documentos" rows="6" required>${escapeHtml((form.documentos || []).join('\n'))}</textarea>
+  <div class="invalid-feedback d-block mb-4">${escapeHtml(errors.documentos || '')}</div>
+
+  <button class="btn btn-primary">Salvar checklist</button>
+  <a class="btn btn-link" href="/processos">Cancelar</a>
+</form>
+` }) %>

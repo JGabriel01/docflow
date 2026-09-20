@@ -1,4 +1,5 @@
 const service = require("../services/clienteService");
+const empresaService = require("../services/empresaService");
 
 async function lista(req, res) {
   const clientes = await service.listarClientes(
@@ -52,12 +53,12 @@ async function editarForm(req, res) {
       title: "Não encontrado",
       message: "Cliente não encontrado.",
     });
-  res.render("cliente-form", {
-    title: "Editar cliente",
-    form,
-    errors: {},
-    action: `/clientes/${form.id}/editar`,
-  });
+    res.render("cliente-form", {
+      title: "Editar cliente",
+      form,
+      errors: {},
+      action: `/clientes/${Number(form.id)}/editar`,
+    });
 }
 async function editar(req, res) {
   const errors = req.validationErrors || validate(req.body);
@@ -66,7 +67,7 @@ async function editar(req, res) {
       title: "Editar cliente",
       form: { ...req.body, id: req.params.id },
       errors,
-      action: `/clientes/${req.params.id}/editar`,
+      action: `/clientes/${Number(req.params.id)}/editar`,
     });
   try {
     await service.atualizarCliente(
@@ -81,7 +82,7 @@ async function editar(req, res) {
         title: "Editar cliente",
         form: { ...req.body, id: req.params.id },
         errors: { cpf: "CPF já cadastrado nesta empresa." },
-        action: `/clientes/${req.params.id}/editar`,
+        action: `/clientes/${Number(req.params.id)}/editar`,
       });
     throw error;
   }
@@ -91,7 +92,7 @@ async function excluir(req, res) {
   res.redirect("/clientes");
 }
 async function historico(req, res) {
-  const empresa = req.session.empresa;
+  const empresa = await empresaService.obterEmpresa(req.session.empresaId);
   if (empresa.plano !== "PRO")
     return res.status(403).render("not-found", {
       title: "Recurso Pro",

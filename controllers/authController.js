@@ -19,8 +19,15 @@ async function login(req, res) {
       form: req.body,
     });
   }
-  req.session.empresaId = empresa.id;
-  req.session.empresa = empresa;
+    req.session.empresaId = empresa.id;
+    req.session.empresa = {
+      id: empresa.id,
+      razaoSocial: empresa.razaoSocial,
+      cnpj: empresa.cnpj,
+      email: empresa.email,
+      plano: empresa.plano,
+      ativa: empresa.ativa,
+    };
   res.redirect("/processos");
 }
 

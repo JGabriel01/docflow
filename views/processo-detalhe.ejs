@@ -1,8 +1,8 @@
 <%- include('partials/layout', { body: `
 <div class="d-flex justify-content-between align-items-start mb-4">
   <div>
-    <span class="eyebrow">${processo.cliente.nome}</span>
-    <h1>${processo.nomeProcesso}</h1>
+    <span class="eyebrow">${escapeHtml(processo.cliente.nome)}</span>
+    <h1>${escapeHtml(processo.nomeProcesso)}</h1>
     <span
       class="badge ${processo.status === 'CONCLUIDO' ? 'bg-success' : 'bg-warning text-dark'}"
       >${processo.status === 'CONCLUIDO' ? 'Concluído' : 'Em andamento'}</span
@@ -27,7 +27,7 @@
     <input
       id="upload-link"
       class="form-control"
-      value="${link}"
+      value="${escapeHtml(link)}"
       readonly
     /><button class="btn btn-outline-secondary" data-copy="upload-link">
       Copiar
@@ -61,7 +61,7 @@
     <tbody>
       ${processo.documentos.map(doc => `
       <tr>
-        <td>${doc.nomeDocumento}</td>
+        <td>${escapeHtml(doc.nomeDocumento)}</td>
         <td>
           <span
             class="badge ${doc.status === 'RECEBIDO' ? 'bg-success' : 'bg-warning text-dark'}"

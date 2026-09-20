@@ -43,6 +43,20 @@ async function novo(req, res) {
         "/processos/novo",
         "Novo processo",
       );
+    if (error.message === "CLIENTE_NAO_ENCONTRADO")
+      return res.status(404).render("not-found", {
+        title: "Não encontrado",
+        message: "Cliente não encontrado.",
+      });
+    if (error.code === "P2034")
+      return renderForm(
+        req,
+        res,
+        form,
+        { clienteId: "O processo foi alterado por outra operação. Tente novamente." },
+        "/processos/novo",
+        "Novo processo",
+      );
     throw error;
   }
 }
@@ -93,7 +107,7 @@ async function editar(req, res) {
       res,
       form,
       errors,
-      `/processos/${req.params.id}/editar`,
+      `/processos/${Number(req.params.id)}/editar`,
       "Editar processo",
     );
   try {

@@ -19,12 +19,14 @@ async function cadastro(req, res) {
     await service.criarEmpresa(form);
     res.redirect("/login");
   } catch (error) {
-    if (error.code === "P2002")
+    if (error.code === "P2002") {
+      const campo = error.meta?.target?.includes("email") ? "email" : "cnpj";
       return res.status(200).render("empresa-cadastro", {
         title: "Criar conta",
-        errors: { cnpj: "CNPJ ou e-mail já cadastrado." },
+        errors: { [campo]: `${campo === "email" ? "E-mail" : "CNPJ"} já cadastrado.` },
         form,
       });
+    }
     throw error;
   }
 }
@@ -45,12 +47,14 @@ async function perfil(req, res) {
     await service.atualizarEmpresa(req.session.empresaId, req.body);
     res.redirect("/empresas/perfil");
   } catch (error) {
-    if (error.code === "P2002")
+    if (error.code === "P2002") {
+      const campo = error.meta?.target?.includes("email") ? "email" : "cnpj";
       return res.status(200).render("perfil", {
         title: "Empresa",
-        errors: { cnpj: "CNPJ ou e-mail já cadastrado." },
+        errors: { [campo]: `${campo === "email" ? "E-mail" : "CNPJ"} já cadastrado.` },
         form: req.body,
       });
+    }
     throw error;
   }
 }

@@ -6,8 +6,10 @@ const { collectValidationErrors } = require("../middlewares/validation");
 const router = express.Router();
 router.use(requireAuth);
 const clienteValidation = [
-  body("nome").trim().notEmpty().withMessage("Informe o nome."),
-  body("cpf").trim().notEmpty().withMessage("Informe o CPF."),
+  body("nome").trim().isLength({ min: 1, max: 150 }).withMessage("O nome deve ter até 150 caracteres."),
+  body("cpf").trim().isLength({ min: 1, max: 14 }).withMessage("O CPF deve ter até 14 caracteres."),
+  body("email").optional({ values: "falsy" }).isEmail().isLength({ max: 255 }).withMessage("Informe um e-mail válido de até 255 caracteres."),
+  body("telefone").optional({ values: "falsy" }).isLength({ max: 20 }).withMessage("O telefone deve ter até 20 caracteres."),
 ];
 router.get("/", controller.lista);
 router.get("/novo", controller.novoForm);

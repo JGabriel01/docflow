@@ -1,10 +1,22 @@
 const prisma = require("../lib/prisma");
 
+async function transactionWithRetry(callback) {
+  for (let attempt = 1; attempt <= 3; attempt += 1) {
+    try {
+      return await prisma.$transaction(callback, {
+        isolationLevel: "Serializable",
+      });
+    } catch (error) {
+      if (error.code !== "P2034" || attempt === 3) throw error;
+    }
+  }
+}
+
 async function criarProcesso(
   empresaId,
   { clienteId, nomeProcesso, documentos },
 ) {
-  return prisma.$transaction(async (tx) => {
+  return transactionWithRetry(async (tx) => {
     const cliente = await tx.cliente.findFirst({
       where: { id: clienteId, empresaId },
     });
@@ -23,7 +35,7 @@ async function criarProcesso(
       },
       include: { cliente: true, documentos: true },
     });
-  }, { isolationLevel: "Serializable" });
+  });
 }
 
 async function listarProcessos(empresaId) {
@@ -46,7 +58,7 @@ async function excluirProcesso(empresaId, id) {
 }
 
 async function atualizarChecklist(empresaId, id, { nomeProcesso, documentos }) {
-  return prisma.$transaction(async (tx) => {
+  return transactionWithRetry(async (tx) => {
     const processo = await tx.processo.findFirst({
       where: { id, cliente: { empresaId }, status: "EM_ANDAMENTO" },
     });
@@ -55,25 +67,29 @@ async function atualizarChecklist(empresaId, id, { nomeProcesso, documentos }) {
       where: { processoId: id, status: "RECEBIDO" },
     });
     await tx.documentoChecklist.deleteMany({ where: { processoId: id } });
+    const novosDocumentos = documentos.map((nomeDocumento) => {
+      const anterior = recebidos.find(
+        (documento) => documento.nomeDocumento === nomeDocumento,
+      );
+      return anterior
+        ? {
+            nomeDocumento,
+            status: "RECEBIDO",
+            arquivoPath: anterior.arquivoPath,
+            dataEnvio: anterior.dataEnvio,
+          }
+        : { nomeDocumento };
+    });
+    const concluido = novosDocumentos.length > 0 && novosDocumentos.every((documento) => documento.status === "RECEBIDO");
     return tx.processo.update({
       where: { id },
       data: {
         nomeProcesso,
         documentos: {
-          create: documentos.map((nomeDocumento) => {
-            const anterior = recebidos.find(
-              (documento) => documento.nomeDocumento === nomeDocumento,
-            );
-            return anterior
-              ? {
-                  nomeDocumento,
-                  status: "RECEBIDO",
-                  arquivoPath: anterior.arquivoPath,
-                  dataEnvio: anterior.dataEnvio,
-                }
-              : { nomeDocumento };
-          }),
+          create: novosDocumentos,
         },
+        status: concluido ? "CONCLUIDO" : "EM_ANDAMENTO",
+        dataConclusao: concluido ? new Date() : null,
       },
       include: { cliente: true, documentos: true },
     });
@@ -81,7 +97,7 @@ async function atualizarChecklist(empresaId, id, { nomeProcesso, documentos }) {
 }
 
 async function registrarUpload(tokenAcesso, documentoId, arquivoPath) {
-  return prisma.$transaction(async (tx) => {
+  return transactionWithRetry(async (tx) => {
     const processo = await tx.processo.findUnique({
       where: { tokenAcesso },
       include: { documentos: true },
@@ -107,7 +123,7 @@ async function registrarUpload(tokenAcesso, documentoId, arquivoPath) {
         data: { status: "CONCLUIDO", dataConclusao: new Date() },
       });
     return { processo, concluido };
-  }, { isolationLevel: "Serializable" });
+  });
 }
 
 async function obterProcessoPublico(tokenAcesso) {
@@ -120,7 +136,9 @@ async function obterProcessoPublico(tokenAcesso) {
 }
 
 async function obterDocumento(empresaId, id) {
-  return prisma.documentoChecklist.findFirst({ where: { id, processo: { cliente: { empresaId } } } });
+  return prisma.documentoChecklist.findFirst({
+    where: { id, processo: { cliente: { empresaId } } },
+  });
 }
 
 module.exports = {

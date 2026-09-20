@@ -5,9 +5,9 @@ const { body } = require("express-validator");
 const { collectValidationErrors } = require("../middlewares/validation");
 const router = express.Router();
 const empresaValidation = [
-  body("razaoSocial").trim().notEmpty().withMessage("Informe a razão social."),
-  body("cnpj").trim().notEmpty().withMessage("Informe o CNPJ."),
-  body("email").isEmail().withMessage("Informe um e-mail válido."),
+  body("razaoSocial").trim().isLength({ min: 1, max: 150 }).withMessage("A razão social deve ter até 150 caracteres."),
+  body("cnpj").trim().isLength({ min: 1, max: 18 }).withMessage("O CNPJ deve ter até 18 caracteres."),
+  body("email").isEmail().isLength({ max: 255 }).withMessage("Informe um e-mail válido de até 255 caracteres."),
 ];
 router.get("/cadastro", controller.cadastroForm);
 router.post(
@@ -15,7 +15,7 @@ router.post(
   [
     ...empresaValidation,
     body("senha")
-      .isLength({ min: 8 })
+      .isLength({ min: 8, max: 255 })
       .withMessage("A senha deve ter pelo menos 8 caracteres."),
     collectValidationErrors,
   ],
@@ -28,7 +28,7 @@ router.post(
   empresaValidation.concat([
     body("senha")
       .optional({ values: "falsy" })
-      .isLength({ min: 8 })
+      .isLength({ min: 8, max: 255 })
       .withMessage("A senha deve ter pelo menos 8 caracteres."),
     collectValidationErrors,
   ]),

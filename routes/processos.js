@@ -9,13 +9,13 @@ const processoValidation = [
   body("clienteId").isInt({ min: 1 }).withMessage("Selecione um cliente."),
   body("nomeProcesso")
     .trim()
-    .notEmpty()
-    .withMessage("Informe o nome do processo."),
+    .isLength({ min: 1, max: 150 })
+    .withMessage("O nome do processo deve ter até 150 caracteres."),
   body("documentos").custom((value) => {
     const items = Array.isArray(value) ? value : [value];
     if (
       !items.some(
-        (item) => item && item.split(/\r?\n/).some((name) => name.trim()),
+        (item) => item && item.split(/\r?\n/).some((name) => name.trim().length <= 100),
       )
     )
       throw new Error("Informe ao menos um documento.");
@@ -36,8 +36,8 @@ router.post(
   [
     body("nomeProcesso")
       .trim()
-      .notEmpty()
-      .withMessage("Informe o nome do processo."),
+      .isLength({ min: 1, max: 150 })
+      .withMessage("O nome do processo deve ter até 150 caracteres."),
     body("documentos").custom((value) => {
       const items = Array.isArray(value) ? value : [value];
       if (

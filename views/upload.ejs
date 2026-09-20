@@ -21,7 +21,7 @@
         <div class="alert alert-danger"><%= error %></div>
         <% } %><% if (success) { %>
         <div class="alert alert-success"><%= success %></div>
-        <% } %><% processo.documentos.filter(doc => doc.status ===
+        <% } %><% if (!completed) { %><% processo.documentos.filter(doc => doc.status ===
         'PENDENTE').forEach(doc => { %>
         <form method="post" enctype="multipart/form-data" class="upload-row">
           <input type="hidden" name="documentoId" value="<%= doc.id %>" />
@@ -37,7 +37,7 @@
             required
           /><button class="btn btn-primary">Enviar</button>
         </form>
-        <% }) %>
+        <% }) %><% } %>
       </div>
     </main>
   </body>
