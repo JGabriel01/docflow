@@ -32,7 +32,7 @@ async function novo(req, res) {
   try {
     const processo = await service.criarProcesso(req.session.empresaId, form);
     req.flash("success", "Processo criado com sucesso.");
-    res.redirect(`/processos/${processo.id}`);
+    req.session.save(() => res.redirect(`/processos/${processo.id}`));
   } catch (error) {
     if (error.message === "PROCESSO_EM_ANDAMENTO")
       return renderForm(

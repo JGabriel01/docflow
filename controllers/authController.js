@@ -28,7 +28,7 @@ async function login(req, res) {
       plano: empresa.plano,
       ativa: empresa.ativa,
     };
-  res.redirect("/processos");
+  req.session.save(() => res.redirect("/processos"));
 }
 
 function logout(req, res) {
