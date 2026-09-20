@@ -25,9 +25,13 @@
         <span class="badge ${badge}">${status}</span>
       </div>
       <h2>${escapeHtml(processo.nomeProcesso)}</h2>
-      <p class="text-muted">
-        ${recebidos} de ${processo.documentos.length} documentos recebidos
-      </p>
+      <div class="d-flex align-items-center gap-2 mb-3">
+        <span class="badge bg-success">${recebidos} de ${processo.documentos.length}</span>
+        <span class="text-muted">documentos recebidos</span>
+      </div>
+      <div class="progress" role="progressbar" aria-label="Progresso dos documentos" aria-valuenow="${recebidos}" aria-valuemin="0" aria-valuemax="${processo.documentos.length}">
+        <div class="progress-bar bg-success" style="width: ${processo.documentos.length ? Math.round((recebidos / processo.documentos.length) * 100) : 0}%"></div>
+      </div>
       <a href="/processos/${processo.id}" class="stretched-link">
         Ver processo
       </a>

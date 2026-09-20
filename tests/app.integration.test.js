@@ -66,6 +66,32 @@ describe("fluxos HTTP do DocFlow", () => {
     expect(painel.text).toContain("Checklist de Integração");
   });
 
+  test("cadastra empresa, cliente e processo por HTTP", async () => {
+    const sufixo = Date.now();
+    const novoEmail = `feliz-${sufixo}@example.com`;
+    const novoCnpj = `22${String(sufixo).slice(-8)}`;
+    const cadastro = await request(app)
+      .post("/empresas/cadastro")
+      .type("form")
+      .send({ razaoSocial: "Empresa Feliz", cnpj: novoCnpj, email: novoEmail, senha: "senha1234" });
+    expect(cadastro.status).toBe(302);
+    const agent = request.agent(app);
+    await agent.post("/login").type("form").send({ email: novoEmail, senha: "senha1234" });
+    const novoCliente = await agent.post("/clientes/novo").type("form").send({ nome: "Cliente Feliz", cpf: `7${String(sufixo).slice(-9)}` });
+    expect(novoCliente.status).toBe(302);
+  });
+
+  test("gera token UUID", async () => {
+    expect(processo.tokenAcesso).toMatch(/^[0-9a-f-]{36}$/i);
+  });
+
+  test("restringe histórico ao Plano Pro para empresa grátis", async () => {
+    const agent = request.agent(app);
+    await agent.post("/login").type("form").send({ email, senha: "senha1234" });
+    const response = await agent.get(`/clientes/${cliente.id}/historico`);
+    expect(response.status).toBe(403);
+  });
+
   test("não repete empresa ou cliente com identificador duplicado", async () => {
     const empresaDuplicada = await request(app)
       .post("/empresas/cadastro")
@@ -104,6 +130,14 @@ describe("fluxos HTTP do DocFlow", () => {
     expect(response.text).toContain(
       "Este cliente já possui um processo em andamento.",
     );
+  });
+
+  test("retorna falha ao enviar link sem canal configurado", async () => {
+    const agent = request.agent(app);
+    await agent.post("/login").type("form").send({ email, senha: "senha1234" });
+    const response = await agent.post(`/processos/${processo.id}/enviar-link`).type("form").send({ canalEnvio: "EMAIL" });
+    expect(response.status).toBe(302);
+    expect(response.headers.location).toBe(`/processos/${processo.id}`);
   });
 
   test("rejeita documentos vazios ou maiores que 100 caracteres", async () => {
@@ -156,6 +190,9 @@ describe("fluxos HTTP do DocFlow", () => {
     });
     expect(atualizado.status).toBe("CONCLUIDO");
     expect(atualizado.dataConclusao).toBeTruthy();
+
+    const expirado = await request(app).get(`/upload/${processo.tokenAcesso}`);
+    expect(expirado.status).toBe(404);
   });
 
   test("protege histórico grátis e download sem sessão", async () => {

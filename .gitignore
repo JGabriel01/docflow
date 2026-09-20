@@ -3,3 +3,7 @@ node_modules
 storage/uploads
 public/uploads
 *.log
+*.pdf
+*.jpeg
+*.jpg
+*.png

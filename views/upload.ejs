@@ -29,13 +29,10 @@
             <strong><%= doc.nomeDocumento %></strong
             ><small class="d-block text-muted">PDF, JPG ou PNG</small>
           </div>
-          <input
-            class="form-control"
-            type="file"
-            name="arquivo"
-            accept=".pdf,.jpg,.jpeg,.png"
-            required
-          /><button class="btn btn-primary">Enviar</button>
+          <div class="input-group">
+            <input class="form-control" type="file" name="arquivo" accept=".pdf,.jpg,.jpeg,.png" required />
+            <button class="btn btn-primary">Enviar</button>
+          </div>
         </form>
         <% }) %><% } %>
       </div>

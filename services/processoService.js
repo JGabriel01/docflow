@@ -68,10 +68,17 @@ async function atualizarChecklist(empresaId, id, { nomeProcesso, documentos }) {
       where: { processoId: id, status: "RECEBIDO" },
     });
     await tx.documentoChecklist.deleteMany({ where: { processoId: id } });
+    const usados = new Set();
     const novosDocumentos = documentos.map((nomeDocumento) => {
-      const anterior = recebidos.find(
-        (documento) => documento.nomeDocumento === nomeDocumento,
-      );
+      const anterior = recebidos.find((documento) => {
+        if (usados.has(documento.id)) return false;
+        if (documento.nomeDocumento === nomeDocumento || !documento.nomeDocumento) {
+          usados.add(documento.id);
+          return true;
+        }
+        return false;
+      }) || recebidos.find((documento) => !usados.has(documento.id));
+      if (anterior) usados.add(anterior.id);
       return anterior
         ? {
             nomeDocumento,

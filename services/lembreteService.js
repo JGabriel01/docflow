@@ -19,6 +19,7 @@ async function enviarLembretesPendentes() {
   for (const processo of processos) {
     const ultimo = processo.lembretes[0];
     if (ultimo && ultimo.dataHoraEnvio > limite) continue;
+    if (!processo.cliente.email && !processo.cliente.telefone) continue;
     const canal = processo.cliente.email ? "EMAIL" : "WHATSAPP";
     if (!notificacaoService.configurado(canal)) continue;
     try {
