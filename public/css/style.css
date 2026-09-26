@@ -502,10 +502,16 @@ a {
     border-radius: var(--df-radius-md);
   }
 
-  .btn {
+  .hero-section .btn,
+  .auth-card .btn,
+  form:not(.d-flex):not(.d-inline):not(.input-group) > .btn:not(.btn-sm):not(.theme-toggle-btn) {
     width: 100%;
   }
 
+  .theme-toggle-btn,
+  .btn-group .btn,
+  .btn-group-sm .btn,
+  .input-group .btn,
   .btn-sm {
     width: auto;
   }
