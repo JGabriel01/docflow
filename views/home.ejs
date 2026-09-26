@@ -1,0 +1,666 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= typeof title !== 'undefined' ? title : 'DocFlow - Coleta Inteligente e Segura de Documentos' %></title>
+  <!-- Google Fonts: Plus Jakarta Sans -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <!-- Bootstrap 5 CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+  <!-- Bootstrap Icons -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  <!-- Custom CSS & Theme -->
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/theme.css">
+  <!-- Inline Theme Init (evita flash ao carregar) -->
+  <script>
+    (function() {
+      const savedTheme = localStorage.getItem('docflow-theme');
+      const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      const theme = savedTheme || (systemPrefersDark ? 'dark' : 'light');
+      document.documentElement.setAttribute('data-theme', theme);
+    })();
+  </script>
+</head>
+<body class="min-vh-100 d-flex flex-column">
+
+  <!-- 1. Header Fixo com Logo, Links, Entrar/Cadastrar e Toggle de Tema -->
+  <header class="navbar navbar-expand-lg border-bottom sticky-top py-3 shadow-xs landing-navbar">
+    <div class="container">
+      <a class="navbar-brand d-flex align-items-center gap-2 text-decoration-none" href="/">
+        <div class="brand-icon-box">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" class="text-white">
+            <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path>
+            <path d="m9 13 2 2 4-4"></path>
+          </svg>
+        </div>
+        <span class="brand-title">DocFlow</span>
+      </a>
+
+      <div class="d-flex align-items-center gap-2 d-lg-none">
+        <button type="button" class="btn btn-sm btn-outline-secondary theme-toggle-btn rounded-circle d-flex align-items-center justify-content-center p-0" title="Alternar tema claro/escuro" aria-label="Alternar tema">
+          <i class="bi bi-moon-stars theme-icon-dark"></i>
+          <i class="bi bi-sun theme-icon-light d-none"></i>
+        </button>
+        <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#homeNavbar" aria-controls="homeNavbar" aria-expanded="false" aria-label="Navegação">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+      </div>
+
+      <div class="collapse navbar-collapse" id="homeNavbar">
+        <ul class="navbar-nav mx-auto mb-2 mb-lg-0 gap-lg-3 py-2 py-lg-0">
+          <li class="nav-item">
+            <a class="nav-link fw-medium" href="#como-funciona">Como funciona</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link fw-medium" href="#antes-depois">Antes x Depois</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link fw-medium" href="#seguranca">Segurança</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link fw-medium" href="#planos">Planos</a>
+          </li>
+        </ul>
+
+        <div class="d-flex align-items-center gap-2 pt-2 pt-lg-0 border-top border-lg-0">
+          <!-- Toggle de Tema no Desktop -->
+          <button type="button" class="btn btn-sm btn-outline-secondary theme-toggle-btn rounded-circle d-none d-lg-flex align-items-center justify-content-center p-0 me-1" title="Alternar tema claro/escuro" aria-label="Alternar tema">
+            <i class="bi bi-moon-stars theme-icon-dark"></i>
+            <i class="bi bi-sun theme-icon-light d-none"></i>
+          </button>
+          <a href="/login" class="btn btn-outline-secondary px-3 py-2 fw-semibold">
+            <i class="bi bi-box-arrow-in-right me-1"></i> Entrar
+          </a>
+          <a href="/empresas/cadastro" class="btn btn-primary px-3 py-2 fw-semibold shadow-sm">
+            <i class="bi bi-building-add me-1"></i> Cadastrar empresa
+          </a>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="flex-grow-1">
+
+    <!-- 2. Hero de Impacto -->
+    <section class="hero-section py-5 py-lg-6 position-relative overflow-hidden">
+      <div class="container position-relative">
+        <div class="row align-items-center g-5">
+          <div class="col-lg-7 text-center text-lg-start">
+            <div class="d-inline-flex align-items-center gap-2 px-3 py-2 rounded-pill bg-primary-subtle text-primary border border-primary-subtle small fw-semibold mb-3 shadow-xs">
+              <i class="bi bi-shield-check"></i>
+              <span>Plataforma Inteligente de Coleta de Documentos</span>
+            </div>
+
+            <h1 class="display-4 fw-extrabold tracking-tight mb-3">
+              Organize a coleta de documentos dos seus clientes
+            </h1>
+
+            <p class="lead text-muted mb-4 pe-lg-4 fs-5">
+              Receber documentos por WhatsApp, e-mail e planilhas gera arquivos esquecidos, prazos perdidos e retrabalho constante. Com o DocFlow, sua empresa cria checklists claras e envia um link único e seguro para o cliente anexar tudo em minutos.
+            </p>
+
+            <div class="d-flex flex-column flex-sm-row align-items-center justify-content-center justify-content-lg-start gap-3 mb-4">
+              <a href="/empresas/cadastro" class="btn btn-primary btn-lg px-4 py-3 fw-bold shadow">
+                <i class="bi bi-rocket-takeoff-fill me-2"></i>Cadastre sua empresa grátis
+              </a>
+              <a href="#como-funciona" class="btn btn-outline-secondary btn-lg px-4 py-3 fw-semibold">
+                <i class="bi bi-play-circle me-2"></i>Ver como funciona
+              </a>
+            </div>
+
+            <div class="d-flex flex-wrap align-items-center justify-content-center justify-content-lg-start gap-4 pt-2 text-muted small">
+              <div class="d-flex align-items-center gap-2">
+                <i class="bi bi-check-circle-fill text-success fs-6"></i>
+                <span>Sem aplicativo nem senha para o cliente</span>
+              </div>
+              <div class="d-flex align-items-center gap-2">
+                <i class="bi bi-check-circle-fill text-success fs-6"></i>
+                <span>Armazenamento com criptografia militar</span>
+              </div>
+              <div class="d-flex align-items-center gap-2">
+                <i class="bi bi-check-circle-fill text-success fs-6"></i>
+                <span>Conclusão automática da checklist</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Hero UI Mockup Interativo -->
+          <div class="col-lg-5">
+            <div class="card hero-card-preview border-0 shadow-lg p-3 p-sm-4">
+              <div class="d-flex justify-content-between align-items-center mb-3 pb-3 border-bottom">
+                <div class="d-flex align-items-center gap-3">
+                  <div class="bg-primary text-white hero-folder-icon shadow-sm">
+                    <i class="bi bi-folder2-open fs-5"></i>
+                  </div>
+                  <div>
+                    <h6 class="fw-bold mb-0">Admissão de Colaborador</h6>
+                    <small class="text-muted">Cliente: Marina Guimarães</small>
+                  </div>
+                </div>
+                <span class="badge bg-warning px-3 py-2 rounded-pill flex-shrink-0 ms-2">
+                  <i class="bi bi-hourglass-split me-1"></i>3 de 4 recebidos
+                </span>
+              </div>
+
+              <!-- Barra de Progresso Visual -->
+              <div class="mb-3">
+                <div class="d-flex justify-content-between small text-muted mb-1">
+                  <span>Progresso da coleta</span>
+                  <span class="fw-bold">75%</span>
+                </div>
+                <div class="progress" style="height: 8px;">
+                  <div class="progress-bar bg-primary" role="progressbar" style="width: 75%;"></div>
+                </div>
+              </div>
+
+              <!-- Itens da Checklist Ilustrativos -->
+              <div class="d-flex flex-column gap-2 mb-3">
+                <div class="checklist-item d-flex justify-content-between align-items-center">
+                  <div class="d-flex align-items-center">
+                    <i class="bi bi-check-circle-fill text-success checklist-icon"></i>
+                    <span class="fw-medium small">RG / CNH Frente e Verso</span>
+                  </div>
+                  <span class="badge bg-success px-3 py-2">RECEBIDO</span>
+                </div>
+                <div class="checklist-item d-flex justify-content-between align-items-center">
+                  <div class="d-flex align-items-center">
+                    <i class="bi bi-check-circle-fill text-success checklist-icon"></i>
+                    <span class="fw-medium small">Comprovante de Residência</span>
+                  </div>
+                  <span class="badge bg-success px-3 py-2">RECEBIDO</span>
+                </div>
+                <div class="checklist-item d-flex justify-content-between align-items-center">
+                  <div class="d-flex align-items-center">
+                    <i class="bi bi-check-circle-fill text-success checklist-icon"></i>
+                    <span class="fw-medium small">Comprovante de Escolaridade</span>
+                  </div>
+                  <span class="badge bg-success px-3 py-2">RECEBIDO</span>
+                </div>
+                <div class="checklist-item border-warning-subtle d-flex justify-content-between align-items-center">
+                  <div class="d-flex align-items-center">
+                    <i class="bi bi-clock-history text-warning-emphasis checklist-icon"></i>
+                    <span class="fw-medium small">Carteira de Trabalho (CTPS)</span>
+                  </div>
+                  <span class="badge bg-warning px-3 py-2">PENDENTE</span>
+                </div>
+              </div>
+
+              <!-- Link Exclusivo do Cliente -->
+              <div class="checklist-item small d-flex justify-content-between align-items-center">
+                <div class="d-flex align-items-center text-truncate me-2" style="max-width: 220px;">
+                  <i class="bi bi-link-45deg checklist-icon text-muted"></i>
+                  <span class="text-truncate text-muted">docflow.app/upload/d8a3...</span>
+                </div>
+                <span class="badge bg-primary-subtle text-primary border border-primary-subtle flex-shrink-0">
+                  Link Único Ativo
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3. Seção "Como funciona" (4 passos: Criar processo → Enviar link → Cliente envia documentos → Concluir) -->
+    <section id="como-funciona" class="py-5 py-lg-6 border-top border-bottom section-alt">
+      <div class="container">
+        <div class="text-center mb-5">
+          <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-3 py-2 rounded-pill fw-semibold small mb-2">
+            Fluxo em 4 Etapas
+          </span>
+          <h2 class="fw-extrabold display-6 mb-2">Como funciona o DocFlow</h2>
+          <p class="text-muted mx-auto" style="max-width: 640px;">
+            Elimine planilhas manuais e conversas confusas em mensageiros com um fluxo 100% digital e intuitivo.
+          </p>
+        </div>
+
+        <div class="row g-4">
+          <!-- Passo 1: Criar processo -->
+          <div class="col-12 col-md-6 col-lg-3">
+            <div class="card h-100 p-4 p-xl-4.5 border text-center feature-step-box">
+              <div class="feature-step-num">1</div>
+              <div class="feature-icon-wrapper bg-primary-subtle text-primary mx-auto">
+                <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path>
+                  <rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect>
+                  <path d="M9 14h6"></path>
+                  <path d="M9 10h6"></path>
+                  <path d="M9 18h6"></path>
+                </svg>
+              </div>
+              <h5 class="fw-bold mb-2">Criar processo</h5>
+              <p class="text-muted small mb-0 lh-base">
+                Selecione o cliente e monte uma checklist personalizada com os documentos exigidos (RG, comprovantes, etc.).
+              </p>
+            </div>
+          </div>
+
+          <!-- Passo 2: Enviar link -->
+          <div class="col-12 col-md-6 col-lg-3">
+            <div class="card h-100 p-4 p-xl-4.5 border text-center feature-step-box">
+              <div class="feature-step-num">2</div>
+              <div class="feature-icon-wrapper bg-indigo-subtle text-indigo mx-auto">
+                <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <line x1="22" y1="2" x2="11" y2="13"></line>
+                  <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                </svg>
+              </div>
+              <h5 class="fw-bold mb-2">Enviar link</h5>
+              <p class="text-muted small mb-0 lh-base">
+                O DocFlow gera um link único de envio. Compartilhe com o cliente via WhatsApp ou e-mail com apenas um clique.
+              </p>
+            </div>
+          </div>
+
+          <!-- Passo 3: Cliente envia documentos -->
+          <div class="col-12 col-md-6 col-lg-3">
+            <div class="card h-100 p-4 p-xl-4.5 border text-center feature-step-box">
+              <div class="feature-step-num">3</div>
+              <div class="feature-icon-wrapper bg-purple-subtle text-purple mx-auto">
+                <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                  <polyline points="17 8 12 3 7 8"></polyline>
+                  <line x1="12" y1="3" x2="12" y2="15"></line>
+                </svg>
+              </div>
+              <h5 class="fw-bold mb-2">Cliente envia documentos</h5>
+              <p class="text-muted small mb-0 lh-base">
+                O cliente abre a checklist no navegador do celular ou computador e anexa os arquivos sem precisar de senha ou app.
+              </p>
+            </div>
+          </div>
+
+          <!-- Passo 4: Concluir -->
+          <div class="col-12 col-md-6 col-lg-3">
+            <div class="card h-100 p-4 p-xl-4.5 border text-center feature-step-box">
+              <div class="feature-step-num">4</div>
+              <div class="feature-icon-wrapper bg-success-subtle text-success mx-auto">
+                <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                  <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                </svg>
+              </div>
+              <h5 class="fw-bold mb-2">Concluir</h5>
+              <p class="text-muted small mb-0 lh-base">
+                Ao receber o último documento pendente, o processo muda para Concluído automaticamente e os arquivos ficam prontos para download.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 4. Seção "Antes x Depois" (Duas colunas comparativas) -->
+    <section id="antes-depois" class="py-5 py-lg-6">
+      <div class="container">
+        <div class="text-center mb-5">
+          <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-3 py-2 rounded-pill fw-semibold small mb-2">
+            Comparativo Direto
+          </span>
+          <h2 class="fw-extrabold display-6 mb-2">Antes x Depois</h2>
+          <p class="text-muted mx-auto" style="max-width: 640px;">
+            Veja a transformação palpável entre o processo manual e a eficiência do DocFlow na sua empresa.
+          </p>
+        </div>
+
+        <div class="row g-4 align-items-stretch">
+          <!-- Coluna Antes -->
+          <div class="col-12 col-lg-6">
+            <div class="card h-100 p-4 p-lg-5 border-danger-subtle shadow-sm position-relative">
+              <div class="d-flex align-items-center gap-3 mb-4 pb-3 border-bottom">
+                <div class="rounded-circle bg-danger-subtle text-danger p-3 d-inline-flex align-items-center justify-content-center flex-shrink-0" style="width: 52px; height: 52px;">
+                  <i class="bi bi-x-octagon-fill fs-3"></i>
+                </div>
+                <div>
+                  <h4 class="fw-bold mb-0">Antes do DocFlow</h4>
+                  <small class="text-danger fw-semibold">Processo manual, disperso e desgastante</small>
+                </div>
+              </div>
+
+              <ul class="list-unstyled d-flex flex-column gap-3 mb-0">
+                <li class="d-flex align-items-start gap-3">
+                  <i class="bi bi-x-circle-fill text-danger fs-5 mt-1 flex-shrink-0"></i>
+                  <div>
+                    <strong>Cobranças repetitivas:</strong> Sua equipe gasta horas cobrando os mesmos documentos por WhatsApp e e-mail.
+                  </div>
+                </li>
+                <li class="d-flex align-items-start gap-3">
+                  <i class="bi bi-x-circle-fill text-danger fs-5 mt-1 flex-shrink-0"></i>
+                  <div>
+                    <strong>Documentos espalhados:</strong> Arquivos perdidos em pastas de downloads, conversas de celular e anexos arquivados.
+                  </div>
+                </li>
+                <li class="d-flex align-items-start gap-3">
+                  <i class="bi bi-x-circle-fill text-danger fs-5 mt-1 flex-shrink-0"></i>
+                  <div>
+                    <strong>Documentos esquecidos e processos travados:</strong> Falta de acompanhamento centralizado causa atrasos nos prazos contratuais.
+                  </div>
+                </li>
+                <li class="d-flex align-items-start gap-3">
+                  <i class="bi bi-x-circle-fill text-danger fs-5 mt-1 flex-shrink-0"></i>
+                  <div>
+                    <strong>Falta de visibilidade:</strong> Ninguém sabe com exatidão o que já chegou e o que ainda falta para cada cliente.
+                  </div>
+                </li>
+              </ul>
+            </div>
+          </div>
+
+          <!-- Coluna Depois -->
+          <div class="col-12 col-lg-6">
+            <div class="card h-100 p-4 p-lg-5 border-success-subtle shadow-sm position-relative">
+              <div class="d-flex align-items-center gap-3 mb-4 pb-3 border-bottom">
+                <div class="rounded-circle bg-success-subtle text-success p-3 d-inline-flex align-items-center justify-content-center flex-shrink-0" style="width: 52px; height: 52px;">
+                  <i class="bi bi-check-circle-fill fs-3"></i>
+                </div>
+                <div>
+                  <h4 class="fw-bold mb-0">Depois do DocFlow</h4>
+                  <small class="text-success fw-semibold">Centralização, rapidez e tranquilidade</small>
+                </div>
+              </div>
+
+              <ul class="list-unstyled d-flex flex-column gap-3 mb-0">
+                <li class="d-flex align-items-start gap-3">
+                  <i class="bi bi-check-circle-fill text-success fs-5 mt-1 flex-shrink-0"></i>
+                  <div>
+                    <strong>Link individual prático:</strong> Seu cliente recebe um link exclusivo, vê exatamente o que deve anexar e envia em segundos.
+                  </div>
+                </li>
+                <li class="d-flex align-items-start gap-3">
+                  <i class="bi bi-check-circle-fill text-success fs-5 mt-1 flex-shrink-0"></i>
+                  <div>
+                    <strong>Painel de pendências em tempo real:</strong> Acompanhe visualmente a porcentagem de conclusão de cada processo.
+                  </div>
+                </li>
+                <li class="d-flex align-items-start gap-3">
+                  <i class="bi bi-check-circle-fill text-success fs-5 mt-1 flex-shrink-0"></i>
+                  <div>
+                    <strong>Lembretes automáticos:</strong> No Plano Pro, o sistema assume a rotina de avisos de pendências sem sobrecarregar ninguém.
+                  </div>
+                </li>
+                <li class="d-flex align-items-start gap-3">
+                  <i class="bi bi-check-circle-fill text-success fs-5 mt-1 flex-shrink-0"></i>
+                  <div>
+                    <strong>Conclusão e download protegido:</strong> Finalização automática assim que todos os arquivos são enviados, com download cifrado.
+                  </div>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 5. Seção de Segurança (com destaque visual: ícone de cadeado, badge e confiabilidade) -->
+    <section id="seguranca" class="py-5 py-lg-6 border-top border-bottom section-alt">
+      <div class="container">
+        <div class="row align-items-center g-5">
+          <div class="col-lg-5 text-center text-lg-start">
+            <div class="security-badge-icon mb-4">
+              <svg width="42" height="42" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+              </svg>
+            </div>
+
+            <div class="d-inline-flex align-items-center gap-2 px-3 py-2 rounded-pill bg-primary-subtle text-primary border border-primary-subtle small fw-bold mb-3">
+              <i class="bi bi-shield-lock-fill"></i> Segurança Avançada
+            </div>
+
+            <h2 class="fw-extrabold display-6 mb-3">Privacidade e proteção para todos os arquivos</h2>
+            <p class="text-muted lead fs-6 mb-4">
+              Documentos pessoais e empresariais exigem confidencialidade irrestrita. O DocFlow adota práticas modernas de blindagem para garantir que seus dados nunca fiquem expostos.
+            </p>
+
+            <div class="d-flex flex-column gap-3">
+              <div class="d-flex align-items-start gap-3 p-3 rounded-3 border bg-surface">
+                <div class="p-2 rounded-3 bg-primary-subtle text-primary d-flex align-items-center justify-content-center flex-shrink-0" style="width: 44px; height: 44px;">
+                  <i class="bi bi-file-earmark-lock2-fill fs-5"></i>
+                </div>
+                <div class="text-start">
+                  <h6 class="fw-bold mb-1">Criptografia dos Arquivos</h6>
+                  <p class="text-muted small mb-0">Arquivos gravados de forma cifrada no banco de dados.</p>
+                </div>
+              </div>
+
+              <div class="d-flex align-items-start gap-3 p-3 rounded-3 border bg-surface">
+                <div class="p-2 rounded-3 bg-primary-subtle text-primary d-flex align-items-center justify-content-center flex-shrink-0" style="width: 44px; height: 44px;">
+                  <i class="bi bi-key-fill fs-5"></i>
+                </div>
+                <div class="text-start">
+                  <h6 class="fw-bold mb-1">Senhas com Hash Seguro</h6>
+                  <p class="text-muted small mb-0">Acessos administrativos com hash criptográfico irreversível.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-lg-7">
+            <div class="row g-4">
+              <div class="col-12 col-sm-6">
+                <div class="card h-100 p-4 border shadow-xs">
+                  <div class="d-inline-flex p-3 rounded-3 bg-primary-subtle text-primary mb-3" style="width: fit-content;">
+                    <i class="bi bi-database-fill-lock fs-4"></i>
+                  </div>
+                  <h5 class="fw-bold mb-2">Armazenamento Blindado</h5>
+                  <p class="text-muted small mb-0 lh-base">
+                    O conteúdo dos documentos fica cifrado no próprio banco de dados, imune ao acesso direto no sistema de arquivos.
+                  </p>
+                </div>
+              </div>
+
+              <div class="col-12 col-sm-6">
+                <div class="card h-100 p-4 border shadow-xs">
+                  <div class="d-inline-flex p-3 rounded-3 bg-primary-subtle text-primary mb-3" style="width: fit-content;">
+                    <i class="bi bi-buildings-fill fs-4"></i>
+                  </div>
+                  <h5 class="fw-bold mb-2">Isolamento Multi-Tenant</h5>
+                  <p class="text-muted small mb-0 lh-base">
+                    Cada empresa acessa única e exclusivamente seus próprios clientes e processos, com segregação lógica estrita.
+                  </p>
+                </div>
+              </div>
+
+              <div class="col-12 col-sm-6">
+                <div class="card h-100 p-4 border shadow-xs">
+                  <div class="d-inline-flex p-3 rounded-3 bg-primary-subtle text-primary mb-3" style="width: fit-content;">
+                    <i class="bi bi-fingerprint fs-4"></i>
+                  </div>
+                  <h5 class="fw-bold mb-2">Tokens Únicos Opostos</h5>
+                  <p class="text-muted small mb-0 lh-base">
+                    Links com identificadores aleatórios de 128 bits (UUID v4) que expiram automaticamente assim que o processo conclui.
+                  </p>
+                </div>
+              </div>
+
+              <div class="col-12 col-sm-6">
+                <div class="card h-100 p-4 border shadow-xs">
+                  <div class="d-inline-flex p-3 rounded-3 bg-primary-subtle text-primary mb-3" style="width: fit-content;">
+                    <i class="bi bi-cloud-arrow-down-fill fs-4"></i>
+                  </div>
+                  <h5 class="fw-bold mb-2">Download Controlado</h5>
+                  <p class="text-muted small mb-0 lh-base">
+                    A decifragem acontece somente sob demanda quando solicitada pela empresa autenticada detentora do processo.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 6. Seção de Planos (Grátis e Pro) -->
+    <section id="planos" class="py-5 py-lg-6">
+      <div class="container">
+        <div class="text-center mb-5">
+          <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-3 py-2 rounded-pill fw-semibold small mb-2">
+            Planos Transparentes
+          </span>
+          <h2 class="fw-extrabold display-6 mb-2">Escolha o plano certo para o seu negócio</h2>
+          <p class="text-muted mx-auto" style="max-width: 640px;">
+            Comece no plano gratuito para organizar seus processos e migre para o Pro quando precisar de automação de cobranças.
+          </p>
+        </div>
+
+        <div class="row g-4 justify-content-center align-items-stretch">
+          <!-- Card Plano Grátis -->
+          <div class="col-12 col-md-6 col-lg-5">
+            <div class="card h-100 p-4 p-xl-5 border shadow-sm d-flex flex-column">
+              <div class="mb-4">
+                <div class="d-flex align-items-center justify-content-between mb-3">
+                  <span class="badge bg-secondary px-3 py-2 rounded-pill small fw-bold">
+                    PLANO GRÁTIS
+                  </span>
+                  <span class="badge bg-secondary-subtle text-secondary border px-3 py-1 rounded-pill small">
+                    Básico
+                  </span>
+                </div>
+                <h3 class="fw-bold mb-1">Começo Rápido</h3>
+                <p class="text-muted small">Ideal para organizar coletas pontuais com total segurança.</p>
+                <div class="d-flex align-items-baseline gap-1 my-3">
+                  <span class="display-5 fw-extrabold">R$ 0</span>
+                  <span class="text-muted small">/ para sempre</span>
+                </div>
+              </div>
+
+              <div class="flex-grow-1">
+                <h6 class="fw-bold small text-uppercase text-muted mb-3">O que está incluso:</h6>
+                <ul class="list-unstyled d-flex flex-column gap-3 small mb-4">
+                  <li class="d-flex align-items-start gap-2">
+                    <i class="bi bi-check2 text-primary fs-5 flex-shrink-0 mt-1"></i>
+                    <span>Checklists personalizadas por processo</span>
+                  </li>
+                  <li class="d-flex align-items-start gap-2">
+                    <i class="bi bi-check2 text-primary fs-5 flex-shrink-0 mt-1"></i>
+                    <span>Link único de envio para o cliente</span>
+                  </li>
+                  <li class="d-flex align-items-start gap-2">
+                    <i class="bi bi-check2 text-primary fs-5 flex-shrink-0 mt-1"></i>
+                    <span>Página de envio sem necessidade de login</span>
+                  </li>
+                  <li class="d-flex align-items-start gap-2">
+                    <i class="bi bi-check2 text-primary fs-5 flex-shrink-0 mt-1"></i>
+                    <span>Painel de acompanhamento básico</span>
+                  </li>
+                  <li class="d-flex align-items-start gap-2">
+                    <i class="bi bi-check2 text-primary fs-5 flex-shrink-0 mt-1"></i>
+                    <span>Armazenamento criptografado dos arquivos</span>
+                  </li>
+                  <li class="d-flex align-items-start gap-2">
+                    <i class="bi bi-check2 text-primary fs-5 flex-shrink-0 mt-1"></i>
+                    <span>Conclusão automática do processo</span>
+                  </li>
+                  <li class="d-flex align-items-start gap-2 text-muted">
+                    <i class="bi bi-dash text-muted fs-5 flex-shrink-0 mt-1"></i>
+                    <span class="text-decoration-line-through">Lembretes automáticos</span>
+                  </li>
+                  <li class="d-flex align-items-start gap-2 text-muted">
+                    <i class="bi bi-dash text-muted fs-5 flex-shrink-0 mt-1"></i>
+                    <span class="text-decoration-line-through">Histórico completo de documentos</span>
+                  </li>
+                </ul>
+              </div>
+
+              <div class="mt-4 pt-3 border-top">
+                <a href="/empresas/cadastro" class="btn btn-outline-primary w-100 py-2 fw-bold">
+                  Começar agora
+                </a>
+              </div>
+            </div>
+          </div>
+
+          <!-- Card Plano Pro -->
+          <div class="col-12 col-md-6 col-lg-5">
+            <div class="card h-100 p-4 p-xl-5 border-2 border-primary shadow-lg d-flex flex-column plan-pro-card">
+              <div class="mb-4">
+                <div class="d-flex align-items-center justify-content-between mb-3">
+                  <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-3 py-2 rounded-pill small fw-bold">
+                    PLANO PRO
+                  </span>
+                  <span class="badge badge-pro px-3 py-2 rounded-pill shadow-sm fw-bold">
+                    <i class="bi bi-star-fill me-1"></i> MAIS POPULAR
+                  </span>
+                </div>
+                <h3 class="fw-bold mb-1">Produtividade Máxima</h3>
+                <p class="text-muted small">Para escritórios e empresas que precisam de escala e automação.</p>
+                <div class="d-flex align-items-baseline gap-1 my-3">
+                  <span class="display-5 fw-extrabold text-primary">Plano Pro</span>
+                </div>
+              </div>
+
+              <div class="flex-grow-1">
+                <h6 class="fw-bold small text-uppercase text-muted mb-3">Tudo do Grátis e mais:</h6>
+                <ul class="list-unstyled d-flex flex-column gap-3 small mb-4">
+                  <li class="d-flex align-items-start gap-2">
+                    <i class="bi bi-check-circle-fill text-primary fs-6 flex-shrink-0 mt-1"></i>
+                    <strong>Clientes e processos ilimitados</strong>
+                  </li>
+                  <li class="d-flex align-items-start gap-2">
+                    <i class="bi bi-check-circle-fill text-primary fs-6 flex-shrink-0 mt-1"></i>
+                    <strong>Lembretes automáticos para clientes</strong>
+                  </li>
+                  <li class="d-flex align-items-start gap-2">
+                    <i class="bi bi-check-circle-fill text-primary fs-6 flex-shrink-0 mt-1"></i>
+                    <strong>Histórico de documentos por cliente</strong>
+                  </li>
+                  <li class="d-flex align-items-start gap-2">
+                    <i class="bi bi-check-circle-fill text-primary fs-6 flex-shrink-0 mt-1"></i>
+                    <span>Painel completo de gestão e métricas</span>
+                  </li>
+                  <li class="d-flex align-items-start gap-2">
+                    <i class="bi bi-check-circle-fill text-primary fs-6 flex-shrink-0 mt-1"></i>
+                    <span>Download cifrado com acesso direto</span>
+                  </li>
+                  <li class="d-flex align-items-start gap-2">
+                    <i class="bi bi-check-circle-fill text-primary fs-6 flex-shrink-0 mt-1"></i>
+                    <span>Armazenamento blindado dos arquivos</span>
+                  </li>
+                </ul>
+              </div>
+
+              <div class="mt-4 pt-3 border-top">
+                <a href="/empresas/cadastro" class="btn btn-primary w-100 py-2 fw-bold shadow">
+                  <i class="bi bi-gem me-1"></i> Começar agora
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- 7. Footer com Copyright -->
+  <footer class="border-top py-4 text-center text-muted small mt-auto">
+    <div class="container">
+      <div class="d-flex flex-column flex-md-row justify-content-between align-items-center gap-3">
+        <div class="d-flex align-items-center gap-2">
+          <i class="bi bi-folder-check text-primary fs-5"></i>
+          <span class="fw-bold">DocFlow</span>
+          <span>&copy; <%= new Date().getFullYear() %> — Plataforma Segura de Coleta de Documentos.</span>
+        </div>
+        <div class="d-flex align-items-center gap-3 text-muted">
+          <a href="/login" class="text-decoration-none text-muted hover-primary">Entrar</a>
+          <span>&bull;</span>
+          <a href="/empresas/cadastro" class="text-decoration-none text-muted hover-primary">Cadastrar Empresa</a>
+          <span>&bull;</span>
+          <a href="#seguranca" class="text-decoration-none text-muted hover-primary">Segurança</a>
+          <span>&bull;</span>
+          <a href="#planos" class="text-decoration-none text-muted hover-primary">Planos</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Bootstrap 5 Bundle JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+  <!-- Theme Switcher JS -->
+  <script src="/js/theme.js"></script>
+</body>
+</html>

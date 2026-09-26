@@ -1,15 +1,22 @@
 <%- include('partials/header') %>
 
 <div class="row justify-content-center text-center py-5">
-  <div class="col-md-6">
-    <div class="display-1 fw-bold text-danger mb-2"><%= typeof statusCode !== 'undefined' ? statusCode : 500 %></div>
-    <h3 class="fw-bold mb-3">Erro no Sistema</h3>
-    <p class="text-muted mb-4">
+  <div class="col-md-7 col-lg-6">
+    <div class="display-1 fw-bold <%= typeof statusCode !== 'undefined' && statusCode === 503 ? 'text-warning' : 'text-danger' %> mb-2">
+      <%= typeof statusCode !== 'undefined' ? statusCode : 500 %>
+    </div>
+    <h3 class="fw-bold mb-3"><%= typeof title !== 'undefined' ? title : 'Erro no Sistema' %></h3>
+    <p class="text-muted mb-4 lead fs-6">
       <%= typeof mensagem !== 'undefined' ? mensagem : 'Ocorreu um erro inesperado ao processar sua solicitação.' %>
     </p>
-    <a href="/processos" class="btn btn-primary">
-      <i class="bi bi-arrow-left me-1"></i>Voltar ao Painel
-    </a>
+    <div class="d-flex justify-content-center gap-2">
+      <a href="<%= typeof empresa !== 'undefined' && empresa ? '/processos' : '/' %>" class="btn btn-primary px-4 py-2">
+        <i class="bi bi-arrow-left me-1"></i><%= typeof empresa !== 'undefined' && empresa ? 'Voltar ao Painel' : 'Voltar ao Início' %>
+      </a>
+      <button type="button" class="btn btn-outline-secondary px-3 py-2" onclick="window.location.reload()">
+        <i class="bi bi-arrow-clockwise me-1"></i>Tentar Novamente
+      </button>
+    </div>
   </div>
 </div>
 

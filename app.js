@@ -36,12 +36,36 @@ const sessionOptions = {
   },
 };
 
-// Em ambiente de teste ou desenvolvimento, usar PrismaSessionStore
+// Em ambiente de teste, usar memória. Em desenvolvimento ou produção, usar PrismaSessionStore com proxy resiliente
 if (process.env.NODE_ENV !== 'test') {
-  sessionOptions.store = new PrismaSessionStore(prisma, {
+  const safePrisma = new Proxy(prisma, {
+    get(target, prop, receiver) {
+      if (prop === '$connect') {
+        return async () => {
+          try {
+            return await target.$connect();
+          } catch (err) {
+            return null;
+          }
+        };
+      }
+      return Reflect.get(target, prop, receiver);
+    },
+  });
+
+  sessionOptions.store = new PrismaSessionStore(safePrisma, {
     checkPeriod: 10 * 60 * 1000,
     dbRecordIdIsSessionId: true,
     dbRecordIdFunction: undefined,
+    logger: {
+      log: () => {},
+      error: (msg) => {
+        if (!msg.includes("Could not connect to 'Session' model")) {
+          console.error(msg);
+        }
+      },
+      warn: (msg) => console.warn(msg),
+    },
   });
 }
 
@@ -62,6 +86,7 @@ app.use((req, res, next) => {
 });
 
 // Importação das Rotas
+const homeRoutes = require('./routes/homeRoutes');
 const authRoutes = require('./routes/authRoutes');
 const empresaRoutes = require('./routes/empresaRoutes');
 const clienteRoutes = require('./routes/clienteRoutes');
@@ -69,15 +94,8 @@ const processoRoutes = require('./routes/processoRoutes');
 const uploadRoutes = require('./routes/uploadRoutes');
 const planoRoutes = require('./routes/planoRoutes');
 
-// Rota raiz
-app.get('/', (req, res) => {
-  if (req.session && req.session.empresa) {
-    return res.redirect('/processos');
-  }
-  return res.redirect('/login');
-});
-
 // Registro dos Módulos de Rotas
+app.use('/', homeRoutes);
 app.use('/', authRoutes);
 app.use('/empresas', empresaRoutes);
 app.use('/clientes', clienteRoutes);

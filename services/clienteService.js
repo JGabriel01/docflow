@@ -148,6 +148,13 @@ class ClienteService {
 
     return cliente;
   }
+
+  async obterPrimeiroCliente(empresaId) {
+    return await prisma.cliente.findFirst({
+      where: { empresaId: Number(empresaId) },
+      orderBy: { id: 'asc' },
+    });
+  }
 }
 
 module.exports = new ClienteService();

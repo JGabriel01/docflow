@@ -1,0 +1,854 @@
+/* ==========================================================================
+   DocFlow - Theme System (Light & Dark Mode)
+   Modern Design System, CSS Variables, Typography & Contrast Adjustments
+   ========================================================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+
+/* 1. Variáveis Globais de Cores - Tema Claro (Padrão) */
+:root,
+[data-theme="light"] {
+  --df-font: 'Plus Jakarta Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+
+  /* Cores Base da Aplicação */
+  --df-bg-body: #f8fafc;
+  --df-bg-surface: #ffffff;
+  --df-bg-surface-secondary: #f1f5f9;
+  --df-bg-surface-elevated: #ffffff;
+
+  /* Tipografia */
+  --df-text-main: #0f172a;
+  --df-text-heading: #0f172a;
+  --df-text-secondary: #475569;
+  --df-text-muted: #64748b;
+  --df-text-inverse: #ffffff;
+  --df-brand-title: #0f172a;
+
+  /* Bordas e Divisores */
+  --df-border: #e2e8f0;
+  --df-border-subtle: #f1f5f9;
+  --df-border-strong: #cbd5e1;
+
+  /* Paleta Primária (Azul Royal) */
+  --df-primary: #2563eb;
+  --df-primary-hover: #1d4ed8;
+  --df-primary-subtle: #eff6ff;
+  --df-primary-border: #bfdbfe;
+  --df-primary-text: #1d4ed8;
+
+  /* Status Semânticos (Alta Legibilidade) */
+  --df-warning-bg: #fef3c7;
+  --df-warning-text: #92400e;
+  --df-warning-border: #fde68a;
+
+  --df-success-bg: #d1fae5;
+  --df-success-text: #065f46;
+  --df-success-border: #a7f3d0;
+
+  --df-danger-bg: #fee2e2;
+  --df-danger-text: #991b1b;
+  --df-danger-border: #fecaca;
+  --df-danger: #dc2626;
+
+  --df-secondary-bg: #f1f5f9;
+  --df-secondary-text: #475569;
+  --df-secondary-border: #e2e8f0;
+
+  /* Inputs e Formulários */
+  --df-input-bg: #ffffff;
+  --df-input-border: #cbd5e1;
+  --df-input-text: #0f172a;
+  --df-input-placeholder: #94a3b8;
+  --df-input-focus-border: #2563eb;
+  --df-input-focus-ring: rgba(37, 99, 235, 0.15);
+
+  /* Tabelas */
+  --df-table-head-bg: #f8fafc;
+  --df-table-head-text: #64748b;
+  --df-table-row-hover: rgba(241, 245, 249, 0.7);
+  --df-table-border: #f1f5f9;
+
+  /* Sombras */
+  --df-shadow-sm: 0 1px 3px rgba(15, 23, 42, 0.06), 0 1px 2px rgba(15, 23, 42, 0.04);
+  --df-shadow-md: 0 4px 16px -2px rgba(15, 23, 42, 0.06), 0 2px 6px -2px rgba(15, 23, 42, 0.04);
+  --df-shadow-lg: 0 12px 28px -4px rgba(15, 23, 42, 0.08), 0 4px 12px -2px rgba(15, 23, 42, 0.03);
+
+  /* Navbar & Header */
+  --df-nav-bg: #0f172a;
+  --df-nav-border: #1e293b;
+  --df-nav-link: #94a3b8;
+  --df-nav-link-hover: #ffffff;
+  --df-nav-link-active-bg: rgba(255, 255, 255, 0.1);
+
+  /* Landing Page Especificidades */
+  --df-hero-bg: linear-gradient(180deg, #f0f5ff 0%, #f8fafc 100%);
+  --df-section-alt-bg: #ffffff;
+}
+
+/* 2. Variáveis Globais de Cores - Tema Escuro */
+[data-theme="dark"] {
+  /* Cores Base da Aplicação */
+  --df-bg-body: #090d16;
+  --df-bg-surface: #111827;
+  --df-bg-surface-secondary: #1a2234;
+  --df-bg-surface-elevated: #182236;
+
+  /* Tipografia */
+  --df-text-main: #f1f5f9;
+  --df-text-heading: #ffffff;
+  --df-text-secondary: #cbd5e1;
+  --df-text-muted: #94a3b8;
+  --df-text-inverse: #0f172a;
+  --df-brand-title: #ffffff;
+
+  /* Bordas e Divisores */
+  --df-border: #243048;
+  --df-border-subtle: #1e293b;
+  --df-border-strong: #334155;
+
+  /* Paleta Primária (Azul Royal no Escuro) */
+  --df-primary: #3b82f6;
+  --df-primary-hover: #60a5fa;
+  --df-primary-subtle: #172554;
+  --df-primary-border: #1e40af;
+  --df-primary-text: #93c5fd;
+
+  /* Status Semânticos (Contraste Refinado para Dark Mode) */
+  --df-warning-bg: #451a03;
+  --df-warning-text: #fcd34d;
+  --df-warning-border: #78350f;
+
+  --df-success-bg: #064e3b;
+  --df-success-text: #6ee7b7;
+  --df-success-border: #047857;
+
+  --df-danger-bg: #450a0a;
+  --df-danger-text: #fca5a5;
+  --df-danger-border: #991b1b;
+  --df-danger: #f87171;
+
+  --df-secondary-bg: #1e293b;
+  --df-secondary-text: #cbd5e1;
+  --df-secondary-border: #334155;
+
+  /* Inputs e Formulários */
+  --df-input-bg: #162032;
+  --df-input-border: #2a374f;
+  --df-input-text: #f8fafc;
+  --df-input-placeholder: #64748b;
+  --df-input-focus-border: #3b82f6;
+  --df-input-focus-ring: rgba(59, 130, 246, 0.25);
+
+  /* Tabelas */
+  --df-table-head-bg: #151e2f;
+  --df-table-head-text: #94a3b8;
+  --df-table-row-hover: rgba(255, 255, 255, 0.04);
+  --df-table-border: #1e293b;
+
+  /* Sombras Dark */
+  --df-shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.4);
+  --df-shadow-md: 0 4px 16px -2px rgba(0, 0, 0, 0.5), 0 2px 6px -2px rgba(0, 0, 0, 0.3);
+  --df-shadow-lg: 0 12px 28px -4px rgba(0, 0, 0, 0.6), 0 4px 12px -2px rgba(0, 0, 0, 0.4);
+
+  /* Navbar & Header */
+  --df-nav-bg: #0b101c;
+  --df-nav-border: #1e293b;
+  --df-nav-link: #94a3b8;
+  --df-nav-link-hover: #ffffff;
+  --df-nav-link-active-bg: rgba(59, 130, 246, 0.2);
+
+  /* Landing Page Especificidades */
+  --df-hero-bg: linear-gradient(180deg, #0d1527 0%, #090d16 100%);
+  --df-section-alt-bg: #0e1524;
+}
+
+/* 3. Aplicação nos Elementos Base */
+body {
+  background-color: var(--df-bg-body) !important;
+  color: var(--df-text-main) !important;
+  font-family: var(--df-font);
+  transition: background-color 0.25s ease, color 0.25s ease;
+}
+
+h1, h2, h3, h4, h5, h6,
+.h1, .h2, .h3, .h4, .h5, .h6 {
+  color: var(--df-text-heading) !important;
+  font-family: var(--df-font);
+}
+
+p, span, li, label {
+  color: inherit;
+}
+
+.text-muted {
+  color: var(--df-text-muted) !important;
+}
+
+.text-secondary {
+  color: var(--df-text-secondary) !important;
+}
+
+.text-dark {
+  color: var(--df-text-heading) !important;
+}
+
+/* 4. Cards Modernos */
+.card {
+  background-color: var(--df-bg-surface) !important;
+  border: 1px solid var(--df-border) !important;
+  border-radius: 1rem;
+  box-shadow: var(--df-shadow-md);
+  color: var(--df-text-main);
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease, background-color 0.25s ease;
+}
+
+.card:hover {
+  box-shadow: var(--df-shadow-lg);
+}
+
+.card-header {
+  background-color: var(--df-bg-surface) !important;
+  border-bottom: 1px solid var(--df-border) !important;
+  color: var(--df-text-heading) !important;
+}
+
+.card-footer {
+  background-color: var(--df-bg-surface) !important;
+  border-top: 1px solid var(--df-border) !important;
+  color: var(--df-text-secondary) !important;
+}
+
+/* 5. Badges de Status (Preservando as Classes Contratuais) */
+.badge {
+  font-family: var(--df-font);
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  padding: 0.4rem 0.8rem;
+  border-radius: 9999px;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  line-height: 1.2;
+}
+
+.badge.bg-warning {
+  background-color: var(--df-warning-bg) !important;
+  color: var(--df-warning-text) !important;
+  border: 1px solid var(--df-warning-border) !important;
+}
+
+.badge.bg-success {
+  background-color: var(--df-success-bg) !important;
+  color: var(--df-success-text) !important;
+  border: 1px solid var(--df-success-border) !important;
+}
+
+.badge.bg-secondary {
+  background-color: var(--df-secondary-bg) !important;
+  color: var(--df-secondary-text) !important;
+  border: 1px solid var(--df-secondary-border) !important;
+}
+
+.badge.bg-primary {
+  background-color: var(--df-primary) !important;
+  color: #ffffff !important;
+}
+
+.badge.bg-light {
+  background-color: var(--df-bg-surface-secondary) !important;
+  color: var(--df-text-main) !important;
+  border: 1px solid var(--df-border) !important;
+}
+
+.badge.bg-light.text-dark {
+  color: var(--df-text-heading) !important;
+}
+
+.badge.bg-light.text-muted {
+  color: var(--df-text-muted) !important;
+}
+
+[data-theme="dark"] .badge.bg-light {
+  background-color: var(--df-bg-surface-secondary) !important;
+  color: var(--df-text-main) !important;
+  border-color: var(--df-border) !important;
+}
+
+[data-theme="dark"] .badge.bg-light.text-dark {
+  color: var(--df-text-heading) !important;
+}
+
+[data-theme="dark"] .badge.bg-light.text-muted {
+  color: var(--df-text-muted) !important;
+}
+
+.badge.bg-primary-subtle {
+  background-color: var(--df-primary-subtle) !important;
+  color: var(--df-primary-text) !important;
+  border: 1px solid var(--df-primary-border) !important;
+}
+
+.badge.bg-secondary-subtle {
+  background-color: var(--df-secondary-bg) !important;
+  color: var(--df-secondary-text) !important;
+  border: 1px solid var(--df-border) !important;
+}
+
+.badge.bg-success-subtle {
+  background-color: var(--df-success-bg) !important;
+  color: var(--df-success-text) !important;
+  border: 1px solid var(--df-success-border) !important;
+}
+
+.badge.bg-danger-subtle {
+  background-color: var(--df-danger-bg) !important;
+  color: var(--df-danger-text) !important;
+  border: 1px solid var(--df-danger-border) !important;
+}
+
+.badge.bg-warning-subtle {
+  background-color: var(--df-warning-bg) !important;
+  color: var(--df-warning-text) !important;
+  border: 1px solid var(--df-warning-border) !important;
+}
+
+.badge-pro {
+  background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%) !important;
+  color: #ffffff !important;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  box-shadow: 0 2px 8px rgba(99, 102, 241, 0.4);
+  border: none !important;
+}
+
+/* 6. Alertas Flash (connect-flash) */
+.alert {
+  border-radius: 0.75rem;
+  padding: 1rem 1.25rem;
+  border: 1px solid transparent;
+  font-size: 0.95rem;
+  font-weight: 500;
+}
+
+.alert-success {
+  background-color: var(--df-success-bg) !important;
+  color: var(--df-success-text) !important;
+  border-color: var(--df-success-border) !important;
+}
+
+.alert-danger {
+  background-color: var(--df-danger-bg) !important;
+  color: var(--df-danger-text) !important;
+  border-color: var(--df-danger-border) !important;
+}
+
+.alert-warning {
+  background-color: var(--df-warning-bg) !important;
+  color: var(--df-warning-text) !important;
+  border-color: var(--df-warning-border) !important;
+}
+
+.alert-info {
+  background-color: var(--df-primary-subtle) !important;
+  color: var(--df-primary-text) !important;
+  border-color: var(--df-primary-border) !important;
+}
+
+.alert .btn-close {
+  filter: invert(var(--df-close-invert, 0));
+}
+[data-theme="dark"] .alert .btn-close {
+  --df-close-invert: 1;
+}
+
+/* 7. Formulários e Validação (invalid-feedback) */
+.form-control,
+.form-select {
+  background-color: var(--df-input-bg) !important;
+  border: 1.5px solid var(--df-input-border) !important;
+  color: var(--df-input-text) !important;
+  border-radius: 0.75rem;
+  padding: 0.65rem 1rem;
+  font-family: var(--df-font);
+  font-size: 0.95rem;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.form-control::placeholder {
+  color: var(--df-input-placeholder) !important;
+}
+
+.form-control:focus,
+.form-select:focus {
+  border-color: var(--df-input-focus-border) !important;
+  box-shadow: 0 0 0 3px var(--df-input-focus-ring) !important;
+  background-color: var(--df-input-bg) !important;
+}
+
+.form-control:disabled,
+.form-control[readonly] {
+  background-color: var(--df-bg-surface-secondary) !important;
+  color: var(--df-text-main) !important;
+  opacity: 1;
+}
+
+.form-label {
+  color: var(--df-text-main);
+  font-weight: 600;
+  font-size: 0.875rem;
+  margin-bottom: 0.4rem;
+}
+
+.input-group-text {
+  background-color: var(--df-bg-surface-secondary) !important;
+  border-color: var(--df-input-border) !important;
+  color: var(--df-text-muted) !important;
+  border-radius: 0.75rem;
+}
+
+.invalid-feedback {
+  color: var(--df-danger) !important;
+  font-size: 0.85rem;
+  font-weight: 600;
+  margin-top: 0.4rem;
+  display: block;
+}
+
+.form-text {
+  color: var(--df-text-muted) !important;
+  font-size: 0.85rem;
+  margin-top: 0.4rem;
+}
+
+[data-theme="dark"] .form-text {
+  color: #94a3b8 !important;
+}
+
+.is-invalid {
+  border-color: var(--df-danger) !important;
+}
+
+/* 8. Tabelas */
+.table {
+  --bs-table-bg: transparent;
+  --bs-table-color: var(--df-text-main);
+  border-color: var(--df-border);
+  color: var(--df-text-main);
+}
+
+.table th {
+  background-color: var(--df-table-head-bg) !important;
+  color: var(--df-table-head-text) !important;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  border-bottom: 2px solid var(--df-border) !important;
+  padding: 0.9rem 1rem;
+}
+
+.table td {
+  padding: 1rem;
+  border-bottom: 1px solid var(--df-table-border);
+  color: var(--df-text-main);
+}
+
+.table-hover tbody tr:hover td {
+  background-color: var(--df-table-row-hover) !important;
+}
+
+/* 9. Botões */
+.btn {
+  font-family: var(--df-font);
+  font-weight: 600;
+  border-radius: 0.75rem;
+  padding: 0.55rem 1.25rem;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+}
+
+.btn-primary {
+  background-color: var(--df-primary) !important;
+  border-color: var(--df-primary) !important;
+  color: #ffffff !important;
+  box-shadow: 0 2px 6px rgba(37, 99, 235, 0.25);
+}
+
+.btn-primary:hover, .btn-primary:focus {
+  background-color: var(--df-primary-hover) !important;
+  border-color: var(--df-primary-hover) !important;
+  box-shadow: 0 4px 14px rgba(37, 99, 235, 0.4);
+  transform: translateY(-1px);
+}
+
+.btn-outline-secondary {
+  background-color: transparent !important;
+  color: var(--df-text-secondary) !important;
+  border-color: var(--df-border-strong) !important;
+}
+
+.btn-outline-secondary:hover {
+  background-color: var(--df-bg-surface-secondary) !important;
+  color: var(--df-text-main) !important;
+  border-color: var(--df-text-muted) !important;
+  transform: translateY(-1px);
+}
+
+.btn-outline-primary {
+  color: var(--df-primary) !important;
+  border-color: var(--df-primary) !important;
+}
+
+.btn-outline-primary:hover {
+  background-color: var(--df-primary) !important;
+  color: #ffffff !important;
+  transform: translateY(-1px);
+}
+
+/* Botão de Toggle de Tema */
+.theme-toggle-btn {
+  width: 38px;
+  height: 38px;
+  padding: 0;
+  border-radius: 50% !important;
+  background-color: var(--df-bg-surface) !important;
+  border: 1px solid var(--df-border) !important;
+  color: var(--df-text-main) !important;
+  transition: all 0.2s ease;
+}
+
+.theme-toggle-btn:hover {
+  background-color: var(--df-bg-surface-secondary) !important;
+  color: var(--df-primary) !important;
+  transform: scale(1.08);
+}
+
+.theme-toggle-btn .bi-sun {
+  color: #f59e0b;
+}
+
+.theme-toggle-btn .bi-moon-stars {
+  color: #6366f1;
+}
+
+/* 10. Navbar, Brand Title & Footers */
+.brand-title,
+.navbar-brand,
+.navbar-brand span {
+  font-weight: 800;
+  letter-spacing: -0.025em;
+  transition: color 0.2s ease;
+  text-decoration: none;
+}
+
+[data-theme="light"] .brand-title,
+[data-theme="light"] .navbar-brand,
+[data-theme="light"] .navbar-brand span {
+  color: #0f172a !important; /* Alto contraste no tema claro */
+}
+
+[data-theme="dark"] .brand-title,
+[data-theme="dark"] .navbar-brand,
+[data-theme="dark"] .navbar-brand span {
+  color: #ffffff !important; /* Branco / alto contraste no tema escuro */
+}
+
+.landing-navbar,
+.docflow-navbar,
+header.navbar {
+  background-color: var(--df-bg-surface) !important;
+  border-bottom: 1px solid var(--df-border) !important;
+  z-index: 1040 !important;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+.navbar-user-actions {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+@media (min-width: 992px) {
+  .navbar-user-actions {
+    gap: 1.25rem;
+  }
+}
+
+/* Fractional Spacing Utilities */
+.gap-1\.5 { gap: 0.375rem !important; }
+.gap-2\.5 { gap: 0.75rem !important; }
+.gap-3\.5 { gap: 1.25rem !important; }
+.px-2\.5 { padding-left: 0.75rem !important; padding-right: 0.75rem !important; }
+.py-1\.5 { padding-top: 0.375rem !important; padding-bottom: 0.375rem !important; }
+.py-2\.5 { padding-top: 0.625rem !important; padding-bottom: 0.625rem !important; }
+
+[data-theme="light"] .landing-navbar,
+[data-theme="light"] .docflow-navbar {
+  background-color: rgba(255, 255, 255, 0.96) !important;
+}
+
+[data-theme="dark"] .landing-navbar,
+[data-theme="dark"] .docflow-navbar {
+  background-color: rgba(17, 24, 39, 0.96) !important;
+}
+
+/* Links da Navbar - DocFlow e Landing Page */
+.landing-navbar .nav-link,
+.docflow-navbar .nav-link,
+.navbar .nav-link {
+  color: var(--df-text-secondary) !important;
+  font-weight: 500;
+  padding: 0.5rem 0.85rem;
+  border-radius: 0.5rem;
+  transition: all 0.2s ease;
+}
+
+.landing-navbar .nav-link:hover,
+.docflow-navbar .nav-link:hover,
+.navbar .nav-link:hover {
+  color: var(--df-text-heading) !important;
+  background-color: var(--df-bg-surface-secondary) !important;
+}
+
+/* Aba Selecionada / Ativa: Total contraste e legibilidade no tema claro e escuro */
+.landing-navbar .nav-link.active,
+.docflow-navbar .nav-link.active,
+.navbar .nav-link.active {
+  color: var(--df-primary) !important;
+  background-color: var(--df-primary-subtle) !important;
+  font-weight: 700;
+}
+
+[data-theme="dark"] .landing-navbar .nav-link.active,
+[data-theme="dark"] .docflow-navbar .nav-link.active,
+[data-theme="dark"] .navbar .nav-link.active {
+  color: #ffffff !important;
+  background-color: rgba(59, 130, 246, 0.25) !important;
+}
+
+/* Navbar Legada .navbar-dark.bg-dark */
+.navbar-dark.bg-dark {
+  background-color: var(--df-nav-bg) !important;
+  border-bottom: 1px solid var(--df-nav-border) !important;
+  z-index: 1040 !important;
+}
+
+.navbar-dark.bg-dark .nav-link {
+  color: var(--df-nav-link) !important;
+}
+
+.navbar-dark.bg-dark .nav-link:hover {
+  color: var(--df-nav-link-hover) !important;
+}
+
+.navbar-dark.bg-dark .nav-link.active {
+  color: #ffffff !important;
+  background-color: var(--df-nav-link-active-bg) !important;
+  font-weight: 600;
+}
+
+/* Nav Pills (ex: Checkout Pix / Cartão) */
+.nav-pills .nav-link {
+  color: var(--df-text-secondary);
+  border-radius: 0.5rem;
+  transition: all 0.2s ease;
+}
+
+.nav-pills .nav-link:hover {
+  color: var(--df-text-heading);
+  background-color: var(--df-bg-surface-secondary);
+}
+
+.nav-pills .nav-link.active {
+  background-color: var(--df-primary) !important;
+  color: #ffffff !important;
+}
+
+footer {
+  background-color: var(--df-bg-surface) !important;
+  border-color: var(--df-border) !important;
+  color: var(--df-text-muted) !important;
+}
+
+[data-theme="dark"] .bg-white {
+  background-color: var(--df-bg-surface) !important;
+}
+
+[data-theme="dark"] .bg-light {
+  background-color: var(--df-bg-surface-secondary) !important;
+}
+
+[data-theme="dark"] .border-top {
+  border-color: var(--df-border) !important;
+}
+
+[data-theme="dark"] .border-bottom {
+  border-color: var(--df-border) !important;
+}
+
+/* 11. Modal e Outros Componentes */
+.modal-content {
+  background-color: var(--df-bg-surface) !important;
+  border: 1px solid var(--df-border) !important;
+  color: var(--df-text-main) !important;
+  border-radius: 1rem;
+}
+
+.modal-header,
+.modal-footer {
+  border-color: var(--df-border) !important;
+}
+
+code {
+  background-color: var(--df-bg-surface-secondary) !important;
+  color: var(--df-primary-text) !important;
+  border: 1px solid var(--df-border) !important;
+  padding: 0.2rem 0.45rem;
+  border-radius: 0.375rem;
+  font-size: 0.875em;
+}
+
+/* 12. Landing Page Componentes */
+.hero-section {
+  background: var(--df-hero-bg) !important;
+}
+
+.section-alt {
+  background-color: var(--df-section-alt-bg) !important;
+}
+
+.feature-step-box {
+  background: var(--df-bg-surface) !important;
+  border: 1px solid var(--df-border) !important;
+  border-radius: 1rem;
+  padding: 2.25rem 1.75rem 2rem 1.75rem;
+  text-align: center;
+  position: relative;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.feature-step-box:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--df-shadow-lg);
+}
+
+.feature-step-num {
+  position: absolute;
+  top: 1.25rem;
+  right: 1.25rem;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background-color: var(--df-bg-surface-secondary);
+  border: 1px solid var(--df-border);
+  color: var(--df-text-muted);
+  font-weight: 700;
+  font-size: 0.875rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.feature-icon-wrapper {
+  width: 64px;
+  height: 64px;
+  border-radius: 18px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 0.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.security-badge-icon {
+  width: 84px;
+  height: 84px;
+  border-radius: 24px;
+  background: linear-gradient(135deg, var(--df-primary), #6366f1);
+  color: #ffffff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 1.75rem;
+  box-shadow: 0 10px 25px -5px rgba(37, 99, 235, 0.4);
+}
+
+.plan-pro-card {
+  border: 2px solid var(--df-primary) !important;
+  box-shadow: 0 12px 30px -4px rgba(37, 99, 235, 0.15) !important;
+  position: relative;
+  overflow: visible;
+}
+
+.plan-pro-highlight-card {
+  border: 2px solid var(--df-primary) !important;
+  box-shadow: 0 12px 30px -4px rgba(37, 99, 235, 0.15) !important;
+  position: relative;
+  overflow: visible;
+  background: linear-gradient(180deg, #ffffff 0%, #f5f3ff 100%) !important;
+  color: var(--df-text-main) !important;
+}
+
+[data-theme="dark"] .plan-pro-highlight-card {
+  background: linear-gradient(180deg, #131d33 0%, #171b30 100%) !important;
+  border-color: var(--df-primary) !important;
+  box-shadow: 0 12px 30px -4px rgba(59, 130, 246, 0.25) !important;
+  color: var(--df-text-main) !important;
+}
+
+/* Hero Preview Mockup Enhancements */
+.hero-card-preview .checklist-item {
+  padding: 0.85rem 1rem !important;
+  background-color: var(--df-bg-surface);
+  border: 1px solid var(--df-border) !important;
+  border-radius: 0.75rem !important;
+  transition: all 0.2s ease;
+}
+
+.hero-card-preview .checklist-item:hover {
+  border-color: var(--df-border-strong) !important;
+}
+
+.hero-card-preview .checklist-icon {
+  font-size: 1.25rem !important;
+  margin-right: 0.85rem !important;
+  flex-shrink: 0 !important;
+  display: inline-flex;
+  align-items: center;
+}
+
+.hero-card-preview .hero-folder-icon {
+  width: 44px !important;
+  height: 44px !important;
+  min-width: 44px !important;
+  min-height: 44px !important;
+  border-radius: 0.65rem !important;
+  flex-shrink: 0 !important;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* 13. Responsividade Mobile */
+@media (max-width: 991.98px) {
+  .hero-section {
+    padding-top: 2.5rem !important;
+    padding-bottom: 2.5rem !important;
+  }
+}
+
+@media (max-width: 575.98px) {
+  .btn {
+    width: 100%;
+  }
+
+  .theme-toggle-btn,
+  .btn-sm {
+    width: auto;
+  }
+}

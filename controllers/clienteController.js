@@ -195,6 +195,28 @@ class ClienteController {
       return next(err);
     }
   }
+
+  async historicoGeral(req, res, next) {
+    try {
+      const empresaId = req.session.empresa.id;
+
+      // RN-06: Bloquear se não for Plano Pro
+      if (req.session.empresa.plano !== 'PRO') {
+        req.flash('warning', 'O histórico de documentos está disponível apenas no Plano Pro.');
+        return res.redirect('/clientes');
+      }
+
+      const primeiroCliente = await clienteService.obterPrimeiroCliente(empresaId);
+      if (primeiroCliente) {
+        return res.redirect(`/clientes/${primeiroCliente.id}/historico`);
+      }
+
+      req.flash('info', 'Cadastre ao menos um cliente para visualizar o histórico de documentos.');
+      return res.redirect('/clientes');
+    } catch (err) {
+      return next(err);
+    }
+  }
 }
 
 module.exports = new ClienteController();

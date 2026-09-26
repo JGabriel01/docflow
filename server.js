@@ -13,3 +13,8 @@ process.on('SIGTERM', () => {
     console.log('[DocFlow] Servidor HTTP finalizado.');
   });
 });
+
+process.on('unhandledRejection', (reason, promise) => {
+  console.error('[DocFlow Unhandled Rejection]:', reason && reason.message ? reason.message : reason);
+});
+

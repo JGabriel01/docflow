@@ -1,42 +1,512 @@
-/* DocFlow Custom Styles */
+/* ==========================================================================
+   DocFlow - Design System & Custom Styles
+   Modernized SaaS Appearance for Landing Page & Internal Dashboard
+   ========================================================================== */
+
+/* 1. Tipografia e Variáveis Globais */
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+
+:root {
+  --df-font: 'Plus Jakarta Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  
+  /* Paleta Primária (Azul Royal Moderno) */
+  --df-primary: #2563eb;
+  --df-primary-hover: #1d4ed8;
+  --df-primary-subtle: #dbeafe;
+  --df-primary-light: #eff6ff;
+
+  /* Escala de Cinzas / Slate */
+  --df-dark: #0f172a;
+  --df-slate-900: #0f172a;
+  --df-slate-800: #1e293b;
+  --df-slate-700: #334155;
+  --df-slate-600: #475569;
+  --df-slate-500: #64748b;
+  --df-slate-400: #94a3b8;
+  --df-slate-300: #cbd5e1;
+  --df-slate-200: #e2e8f0;
+  --df-slate-100: #f1f5f9;
+  --df-slate-50: #f8fafc;
+
+  /* Status Semânticos Refinados */
+  --df-success: #059669;
+  --df-success-bg: #d1fae5;
+  --df-success-text: #065f46;
+  --df-success-border: #a7f3d0;
+
+  --df-warning: #d97706;
+  --df-warning-bg: #fef3c7;
+  --df-warning-text: #92400e;
+  --df-warning-border: #fde68a;
+
+  --df-danger: #dc2626;
+  --df-danger-bg: #fee2e2;
+  --df-danger-text: #991b1b;
+  --df-danger-border: #fecaca;
+
+  /* Plano Pro / Gradientes */
+  --df-pro-gradient: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
+  --df-pro-shadow: 0 4px 14px 0 rgba(99, 102, 241, 0.35);
+
+  /* Sombras Suaves */
+  --df-shadow-xs: 0 1px 2px 0 rgba(15, 23, 42, 0.05);
+  --df-shadow-sm: 0 1px 3px 0 rgba(15, 23, 42, 0.08), 0 1px 2px -1px rgba(15, 23, 42, 0.08);
+  --df-shadow-md: 0 4px 16px -2px rgba(15, 23, 42, 0.06), 0 2px 6px -2px rgba(15, 23, 42, 0.04);
+  --df-shadow-lg: 0 12px 28px -4px rgba(15, 23, 42, 0.08), 0 4px 12px -2px rgba(15, 23, 42, 0.03);
+  --df-shadow-xl: 0 20px 35px -5px rgba(15, 23, 42, 0.12), 0 8px 16px -6px rgba(15, 23, 42, 0.06);
+
+  /* Bordas Arredondadas */
+  --df-radius-sm: 0.5rem;
+  --df-radius-md: 0.75rem;
+  --df-radius-lg: 1rem;
+  --df-radius-xl: 1.25rem;
+}
+
+/* 2. Base & Layout */
 body {
-  background-color: #f8fafc;
-  color: #1e293b;
-  font-family: system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  background-color: var(--df-slate-50);
+  color: var(--df-slate-800);
+  font-family: var(--df-font);
+  font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
+  line-height: 1.6;
   min-height: 100vh;
   display: flex;
   flex-direction: column;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 main {
   flex: 1;
 }
 
-.navbar-brand {
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--df-font);
   font-weight: 700;
-  letter-spacing: -0.5px;
+  letter-spacing: -0.025em;
+  color: var(--df-slate-900);
 }
 
+a {
+  text-decoration: none;
+  transition: color 0.15s ease, opacity 0.15s ease;
+}
+
+/* 3. Cards & Containers */
 .card {
-  border: 1px solid #e2e8f0;
-  border-radius: 0.75rem;
-  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05);
-  transition: all 0.2s ease-in-out;
+  background-color: #ffffff;
+  border: 1px solid var(--df-slate-200);
+  border-radius: var(--df-radius-lg);
+  box-shadow: var(--df-shadow-md);
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .card:hover {
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.08);
+  box-shadow: var(--df-shadow-lg);
 }
 
-.badge-pro {
-  background: linear-gradient(135deg, #6366f1, #a855f7);
-  color: white;
-  font-size: 0.75rem;
+.card-header {
+  border-bottom: 1px solid var(--df-slate-200);
+  border-top-left-radius: var(--df-radius-lg) !important;
+  border-top-right-radius: var(--df-radius-lg) !important;
+}
+
+.card-footer {
+  border-top: 1px solid var(--df-slate-200);
+  border-bottom-left-radius: var(--df-radius-lg) !important;
+  border-bottom-right-radius: var(--df-radius-lg) !important;
+}
+
+/* 4. Badges de Status (Preservando Classes Semânticas) */
+.badge {
+  font-family: var(--df-font);
   font-weight: 600;
+  letter-spacing: 0.02em;
+  padding: 0.4rem 0.75rem;
+  border-radius: 9999px;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+/* Status: bg-warning (Pendente / Em Andamento) */
+.badge.bg-warning {
+  background-color: var(--df-warning-bg) !important;
+  color: var(--df-warning-text) !important;
+  border: 1px solid var(--df-warning-border) !important;
+}
+
+/* Status: bg-success (Recebido / Concluído) */
+.badge.bg-success {
+  background-color: var(--df-success-bg) !important;
+  color: var(--df-success-text) !important;
+  border: 1px solid var(--df-success-border) !important;
+}
+
+/* Status: bg-primary */
+.badge.bg-primary {
+  background-color: var(--df-primary) !important;
+  color: #ffffff !important;
+}
+
+/* Status: bg-secondary */
+.badge.bg-secondary {
+  background-color: var(--df-slate-100) !important;
+  color: var(--df-slate-600) !important;
+  border: 1px solid var(--df-slate-200) !important;
+}
+
+/* Badge Exclusivo Plano Pro */
+.badge-pro {
+  background: var(--df-pro-gradient) !important;
+  color: #ffffff !important;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  box-shadow: var(--df-pro-shadow);
+  border: none !important;
+}
+
+/* 5. Botões Modernos */
+.btn {
+  font-family: var(--df-font);
+  font-weight: 600;
+  border-radius: var(--df-radius-md);
+  padding: 0.55rem 1.25rem;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+}
+
+.btn-sm {
+  padding: 0.35rem 0.85rem;
+  font-size: 0.875rem;
+  border-radius: var(--df-radius-sm);
+}
+
+.btn-lg {
+  padding: 0.75rem 1.75rem;
+  font-size: 1.05rem;
+  border-radius: var(--df-radius-lg);
+}
+
+.btn-primary {
+  background-color: var(--df-primary);
+  border-color: var(--df-primary);
+  box-shadow: 0 2px 6px rgba(37, 99, 235, 0.25);
+  color: #ffffff;
+}
+
+.btn-primary:hover, .btn-primary:focus, .btn-primary:active {
+  background-color: var(--df-primary-hover);
+  border-color: var(--df-primary-hover);
+  box-shadow: 0 4px 14px rgba(37, 99, 235, 0.4);
+  transform: translateY(-1px);
+  color: #ffffff;
+}
+
+.btn-outline-primary {
+  color: var(--df-primary);
+  border-color: var(--df-primary);
+  background-color: transparent;
+}
+
+.btn-outline-primary:hover {
+  background-color: var(--df-primary);
+  border-color: var(--df-primary);
+  color: #ffffff;
+  transform: translateY(-1px);
+}
+
+.btn-outline-secondary {
+  color: var(--df-slate-700);
+  border-color: var(--df-slate-300);
+  background-color: #ffffff;
+}
+
+.btn-outline-secondary:hover {
+  background-color: var(--df-slate-100);
+  border-color: var(--df-slate-400);
+  color: var(--df-slate-900);
+}
+
+.btn-outline-danger {
+  color: var(--df-danger);
+  border-color: #fca5a5;
+}
+
+.btn-outline-danger:hover {
+  background-color: var(--df-danger);
+  border-color: var(--df-danger);
+  color: #ffffff;
+}
+
+/* 6. Formulários & Validação */
+.form-control, .form-select {
+  border: 1.5px solid var(--df-slate-200);
+  border-radius: var(--df-radius-md);
+  padding: 0.65rem 1rem;
+  font-size: 0.95rem;
+  font-family: var(--df-font);
+  color: var(--df-slate-900);
+  background-color: #ffffff;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.form-control:focus, .form-select:focus {
+  border-color: var(--df-primary);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+  background-color: #ffffff;
+}
+
+.form-label {
+  font-weight: 600;
+  color: var(--df-slate-700);
+  font-size: 0.875rem;
+  margin-bottom: 0.375rem;
+}
+
+/* Validação Contratual: invalid-feedback */
+.invalid-feedback {
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--df-danger);
+  margin-top: 0.35rem;
+  display: block;
+}
+
+.is-invalid {
+  border-color: var(--df-danger) !important;
+  background-image: none !important;
+}
+
+.is-invalid:focus {
+  box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.15) !important;
+}
+
+/* 7. Tabelas */
+.table {
+  --bs-table-bg: transparent;
+  vertical-align: middle;
 }
 
 .table th {
-  background-color: #f1f5f9;
+  background-color: var(--df-slate-50);
+  font-size: 0.8125rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--df-slate-500);
+  border-bottom: 2px solid var(--df-slate-200);
+  padding: 0.875rem 1rem;
+}
+
+.table td {
+  padding: 1rem;
+  border-bottom: 1px solid var(--df-slate-100);
+  color: var(--df-slate-700);
+}
+
+.table-hover tbody tr:hover {
+  background-color: rgba(241, 245, 249, 0.7);
+}
+
+/* 8. Navbar Interna */
+.navbar-dark.bg-dark {
+  background-color: var(--df-slate-900) !important;
+  border-bottom: 1px solid var(--df-slate-800);
+  backdrop-filter: blur(12px);
+}
+
+.navbar-brand {
+  font-weight: 800;
+  font-size: 1.25rem;
+  letter-spacing: -0.025em;
+  color: var(--df-brand-title, var(--df-text-heading)) !important;
+}
+
+.navbar-dark.bg-dark .nav-link {
+  font-weight: 500;
+  color: var(--df-slate-400);
+  padding: 0.5rem 0.85rem;
+  border-radius: var(--df-radius-sm);
+  transition: all 0.2s ease;
+}
+
+.navbar-dark.bg-dark .nav-link:hover {
+  color: #ffffff;
+  background-color: rgba(255, 255, 255, 0.08);
+}
+
+.navbar-dark.bg-dark .nav-link.active {
+  color: #ffffff;
+  background-color: rgba(37, 99, 235, 0.25);
   font-weight: 600;
-  color: #475569;
+}
+
+/* 9. Landing Page Específicos */
+.brand-icon-box {
+  width: 40px;
+  height: 40px;
+  background: linear-gradient(135deg, var(--df-primary), #1d4ed8);
+  border-radius: var(--df-radius-sm);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 10px rgba(37, 99, 235, 0.35);
+  flex-shrink: 0;
+}
+
+.brand-title {
+  font-weight: 800;
+  font-size: 1.35rem;
+  letter-spacing: -0.03em;
+  color: var(--df-brand-title, var(--df-text-heading));
+  transition: color 0.2s ease;
+}
+
+.hero-section {
+  background: linear-gradient(180deg, #f0f5ff 0%, #f8fafc 100%);
+  padding-top: 4.5rem;
+  padding-bottom: 4.5rem;
+}
+
+.hero-card-preview {
+  border-radius: var(--df-radius-xl);
+  box-shadow: var(--df-shadow-xl) !important;
+}
+
+.feature-card {
+  position: relative;
+  border-radius: var(--df-radius-lg);
+  border: 1px solid var(--df-slate-200);
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.feature-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--df-shadow-lg);
+  border-color: var(--df-slate-300);
+}
+
+.step-badge {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background-color: var(--df-slate-100);
+  color: var(--df-slate-500);
+  font-size: 0.8125rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.feature-icon {
+  width: 56px;
+  height: 56px;
+  border-radius: 14px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.bg-indigo-subtle {
+  background-color: #e0e7ff !important;
+}
+.text-indigo {
+  color: #4338ca !important;
+}
+.bg-purple-subtle {
+  background-color: #f3e8ff !important;
+}
+.text-purple {
+  color: #7e22ce !important;
+}
+
+.plan-pro-card {
+  border: 2px solid var(--df-primary) !important;
+  box-shadow: 0 12px 30px -4px rgba(37, 99, 235, 0.15) !important;
+}
+
+.hover-primary:hover {
+  color: var(--df-primary) !important;
+}
+
+/* 10. Progresso e Alertas */
+.progress {
+  background-color: var(--df-slate-200);
+  border-radius: 9999px;
+  overflow: hidden;
+}
+
+.progress-bar {
+  border-radius: 9999px;
+  transition: width 0.4s ease;
+}
+
+.alert {
+  border-radius: var(--df-radius-md);
+  border: 1px solid transparent;
+  padding: 1rem 1.25rem;
+  font-size: 0.95rem;
+}
+
+.alert-success {
+  background-color: var(--df-success-bg);
+  border-color: var(--df-success-border);
+  color: var(--df-success-text);
+}
+
+.alert-danger {
+  background-color: var(--df-danger-bg);
+  border-color: var(--df-danger-border);
+  color: var(--df-danger-text);
+}
+
+.alert-warning {
+  background-color: var(--df-warning-bg);
+  border-color: var(--df-warning-border);
+  color: var(--df-warning-text);
+}
+
+.alert-info {
+  background-color: var(--df-primary-subtle);
+  border-color: #bfdbfe;
+  color: #1e40af;
+}
+
+/* 11. Responsividade Mobile */
+@media (max-width: 991.98px) {
+  .hero-section {
+    padding-top: 2.5rem;
+    padding-bottom: 2.5rem;
+  }
+
+  .navbar-nav {
+    padding-top: 0.75rem;
+  }
+}
+
+@media (max-width: 575.98px) {
+  .hero-section h1 {
+    font-size: 2.25rem;
+  }
+
+  .card {
+    border-radius: var(--df-radius-md);
+  }
+
+  .btn {
+    width: 100%;
+  }
+
+  .btn-sm {
+    width: auto;
+  }
 }

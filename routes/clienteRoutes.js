@@ -33,6 +33,7 @@ router.post('/novo', validacaoCliente, clienteController.cadastrar);
 router.get('/:id/editar', clienteController.renderEditar);
 router.post('/:id/editar', validacaoCliente, clienteController.atualizar);
 router.post('/:id/excluir', clienteController.excluir);
+router.get('/historico', clienteController.historicoGeral);
 router.get('/:id/historico', clienteController.historico);
 
 module.exports = router;
