@@ -1,10 +1,10 @@
-generator client {
-  provider = "prisma-client-js"
-}
-
 datasource db {
   provider = "mysql"
   url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
 }
 
 enum Plano {
@@ -26,7 +26,7 @@ model Empresa {
   id          Int       @id @default(autoincrement())
   razaoSocial String    @db.VarChar(150)
   cnpj        String    @unique @db.VarChar(18)
-  email       String    @unique @db.VarChar(255)
+  email       String    @unique @db.VarChar(255)   // login
   senhaHash   String    @db.VarChar(255)
   plano       Plano     @default(GRATIS)
   ativa       Boolean   @default(true)
@@ -42,7 +42,7 @@ model Cliente {
   nome      String     @db.VarChar(150)
   cpf       String     @db.VarChar(14)
   email     String?    @db.VarChar(255)
-  telefone  String?    @db.VarChar(20)
+  telefone  String?    @db.VarChar(20)              // envio do link por e-mail/WhatsApp
   createdAt DateTime   @default(now())
   updatedAt DateTime   @updatedAt
   processos Processo[]
@@ -55,7 +55,7 @@ model Processo {
   cliente       Cliente              @relation(fields: [clienteId], references: [id], onDelete: Cascade)
   clienteId     Int
   nomeProcesso  String               @db.VarChar(150)
-  tokenAcesso   String               @unique @default(uuid())
+  tokenAcesso   String               @unique @default(uuid())  // base do link público
   status        StatusProcesso       @default(EM_ANDAMENTO)
   dataConclusao DateTime?
   createdAt     DateTime             @default(now())
@@ -65,25 +65,28 @@ model Processo {
 }
 
 model DocumentoChecklist {
-  id            Int             @id @default(autoincrement())
-  processo      Processo        @relation(fields: [processoId], references: [id], onDelete: Cascade)
-  processoId    Int
-  nomeDocumento String          @db.VarChar(100)
-  status        StatusDocumento @default(PENDENTE)
-  arquivoPath   String?         @db.VarChar(255)
-  dataEnvio     DateTime?
+  id              Int              @id @default(autoincrement())
+  processo        Processo         @relation(fields: [processoId], references: [id], onDelete: Cascade)
+  processoId      Int
+  nomeDocumento   String           @db.VarChar(100)   // ex.: "RG", "Comprovante de Residência"
+  status          StatusDocumento  @default(PENDENTE)
+  arquivoNome     String?          @db.VarChar(255)   // nome original do arquivo enviado
+  arquivoTipo     String?          @db.VarChar(100)   // MIME type, ex.: application/pdf
+  arquivoConteudo Bytes?           @db.LongBlob       // bytes CIFRADOS (AES-256-GCM), salvos no MySQL — nunca no disco
+  dataEnvio       DateTime?
 }
 
+// exclusivo do Plano Pro
 model LembreteEnviado {
-  id            Int      @id @default(autoincrement())
-  processo      Processo @relation(fields: [processoId], references: [id], onDelete: Cascade)
+  id            Int       @id @default(autoincrement())
+  processo      Processo  @relation(fields: [processoId], references: [id], onDelete: Cascade)
   processoId    Int
-  dataHoraEnvio DateTime @default(now())
+  dataHoraEnvio DateTime  @default(now())
 }
 
 model Session {
   id        String   @id
   sid       String   @unique
+  data      String   @db.MediumText
   expiresAt DateTime
-  data      String   @db.Text
 }

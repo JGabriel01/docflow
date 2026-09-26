@@ -1,74 +1,139 @@
-const prisma = require("../lib/prisma");
-const service = require("../services/empresaService");
+const { validationResult } = require('express-validator');
+const empresaService = require('../services/empresaService');
 
-async function cadastroForm(req, res) {
-  res.render("empresa-cadastro", {
-    title: "Criar conta",
-    errors: {},
-    form: {},
-  });
-}
-async function cadastro(req, res) {
-  const form = req.body;
-  const errors = req.validationErrors || validate(form, true);
-  if (Object.keys(errors).length)
-    return res
-      .status(200)
-      .render("empresa-cadastro", { title: "Criar conta", errors, form });
-  try {
-    await service.criarEmpresa(form);
-    res.redirect("/login");
-  } catch (error) {
-    if (error.code === "P2002") {
-      const campo = error.meta?.target?.includes("email") ? "email" : "cnpj";
-      return res.status(200).render("empresa-cadastro", {
-        title: "Criar conta",
-        errors: { [campo]: `${campo === "email" ? "E-mail" : "CNPJ"} já cadastrado.` },
-        form,
-      });
+class EmpresaController {
+  renderCadastro(req, res) {
+    if (req.session && req.session.empresa) {
+      return res.redirect('/processos');
     }
-    throw error;
+    return res.render('empresas/cadastro', {
+      title: 'Cadastrar Empresa - DocFlow',
+      layout: false,
+      dados: {},
+      errors: {},
+    });
+  }
+
+  async cadastrar(req, res, next) {
+    try {
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        const errorMap = {};
+        errors.array().forEach((err) => {
+          errorMap[err.path] = err.msg;
+        });
+
+        return res.status(200).render('empresas/cadastro', {
+          title: 'Cadastrar Empresa - DocFlow',
+          layout: false,
+          dados: req.body,
+          errors: errorMap,
+        });
+      }
+
+      const { razaoSocial, cnpj, email, senha } = req.body;
+
+      try {
+        await empresaService.cadastrarEmpresa({ razaoSocial, cnpj, email, senha });
+        req.flash('success', 'Empresa cadastrada com sucesso.');
+        return res.redirect('/login');
+      } catch (serviceErr) {
+        if (serviceErr.field) {
+          return res.status(200).render('empresas/cadastro', {
+            title: 'Cadastrar Empresa - DocFlow',
+            layout: false,
+            dados: req.body,
+            errors: { [serviceErr.field]: serviceErr.message },
+          });
+        }
+        throw serviceErr;
+      }
+    } catch (err) {
+      return next(err);
+    }
+  }
+
+  async renderPerfil(req, res, next) {
+    try {
+      const empresa = await empresaService.obterEmpresaPorId(req.session.empresa.id);
+      if (!empresa) {
+        req.flash('danger', 'Empresa não encontrada.');
+        return res.redirect('/login');
+      }
+
+      return res.render('empresas/perfil', {
+        title: 'Perfil da Empresa - DocFlow',
+        empresa,
+        dados: empresa,
+        errors: {},
+      });
+    } catch (err) {
+      return next(err);
+    }
+  }
+
+  async atualizarPerfil(req, res, next) {
+    try {
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        const errorMap = {};
+        errors.array().forEach((err) => {
+          errorMap[err.path] = err.msg;
+        });
+
+        const empresa = await empresaService.obterEmpresaPorId(req.session.empresa.id);
+        return res.status(200).render('empresas/perfil', {
+          title: 'Perfil da Empresa - DocFlow',
+          empresa,
+          dados: req.body,
+          errors: errorMap,
+        });
+      }
+
+      const { razaoSocial, cnpj, email, senha } = req.body;
+      const empresaId = req.session.empresa.id;
+
+      try {
+        const empresaAtualizada = await empresaService.atualizarPerfil(empresaId, {
+          razaoSocial,
+          cnpj,
+          email,
+          senha,
+        });
+
+        req.session.empresa = empresaAtualizada;
+        req.flash('success', 'Perfil atualizado com sucesso.');
+        return res.redirect('/empresas/perfil');
+      } catch (serviceErr) {
+        if (serviceErr.field) {
+          const empresa = await empresaService.obterEmpresaPorId(empresaId);
+          return res.status(200).render('empresas/perfil', {
+            title: 'Perfil da Empresa - DocFlow',
+            empresa,
+            dados: req.body,
+            errors: { [serviceErr.field]: serviceErr.message },
+          });
+        }
+        throw serviceErr;
+      }
+    } catch (err) {
+      return next(err);
+    }
+  }
+
+  async excluir(req, res, next) {
+    try {
+      const empresaId = req.session.empresa.id;
+      await empresaService.excluirEmpresa(empresaId);
+
+      req.session.destroy((err) => {
+        if (err) return next(err);
+        return res.redirect('/login');
+      });
+    } catch (err) {
+      return next(err);
+    }
   }
 }
 
-async function perfilForm(req, res) {
-  const empresa = await prisma.empresa.findUnique({
-    where: { id: req.session.empresaId },
-  });
-  res.render("perfil", { title: "Empresa", errors: {}, form: empresa });
-}
-async function perfil(req, res) {
-  const errors = req.validationErrors || {};
-  if (Object.keys(errors).length)
-    return res
-      .status(200)
-      .render("perfil", { title: "Empresa", errors, form: req.body });
-  try {
-    await service.atualizarEmpresa(req.session.empresaId, req.body);
-    res.redirect("/empresas/perfil");
-  } catch (error) {
-    if (error.code === "P2002") {
-      const campo = error.meta?.target?.includes("email") ? "email" : "cnpj";
-      return res.status(200).render("perfil", {
-        title: "Empresa",
-        errors: { [campo]: `${campo === "email" ? "E-mail" : "CNPJ"} já cadastrado.` },
-        form: req.body,
-      });
-    }
-    throw error;
-  }
-}
-async function excluir(req, res) {
-  await service.excluirEmpresa(req.session.empresaId);
-  req.session.destroy(() => res.redirect("/login"));
-}
-function validate(form, passwordRequired) {
-  const errors = {};
-  if (!form.razaoSocial) errors.razaoSocial = "Informe a razão social.";
-  if (!form.cnpj) errors.cnpj = "Informe o CNPJ.";
-  if (!form.email) errors.email = "Informe o e-mail.";
-  if (passwordRequired && !form.senha) errors.senha = "Informe a senha.";
-  return errors;
-}
-
-module.exports = { cadastroForm, cadastro, perfilForm, perfil, excluir };
+module.exports = new EmpresaController();

@@ -1,189 +1,236 @@
-const service = require("../services/processoService");
-const clienteService = require("../services/clienteService");
-const envioService = require("../services/envioService");
-const notificacaoService = require("../services/notificacaoService");
+const { validationResult } = require('express-validator');
+const processoService = require('../services/processoService');
+const clienteService = require('../services/clienteService');
 
-async function lista(req, res) {
-  const processos = await service.listarProcessos(req.session.empresaId);
-  res.render("processos", { title: "Processos", processos });
-}
-async function novoForm(req, res) {
-  const clientes = await clienteService.listarClientes(req.session.empresaId);
-  res.render("processo-form", {
-    title: "Novo processo",
-    clientes,
-    form: { documentos: [""] },
-    errors: {},
-    action: "/processos/novo",
-  });
-}
-async function novo(req, res) {
-  const form = normalize(req.body);
-  const errors = req.validationErrors || validate(form);
-  if (Object.keys(errors).length)
-    return renderForm(
-      req,
-      res,
-      form,
-      errors,
-      "/processos/novo",
-      "Novo processo",
-    );
-  try {
-    const processo = await service.criarProcesso(req.session.empresaId, form);
-    req.flash("success", "Processo criado com sucesso.");
-    req.session.save(() => res.redirect(`/processos/${processo.id}`));
-  } catch (error) {
-    if (error.message === "PROCESSO_EM_ANDAMENTO")
-      return renderForm(
-        req,
-        res,
-        form,
-        { clienteId: "Este cliente já possui um processo em andamento." },
-        "/processos/novo",
-        "Novo processo",
-      );
-    if (error.message === "CLIENTE_NAO_ENCONTRADO")
-      return res.status(404).render("not-found", {
-        title: "Não encontrado",
-        message: "Cliente não encontrado.",
+class ProcessoController {
+  async listar(req, res, next) {
+    try {
+      const empresaId = req.session.empresa.id;
+      const busca = req.query.busca || '';
+      const processos = await processoService.listarProcessos(empresaId, busca);
+
+      return res.render('processos/index', {
+        title: 'Processos - DocFlow',
+        processos,
+        busca,
+        empresa: req.session.empresa,
       });
-    if (error.code === "P2034")
-      return renderForm(
-        req,
-        res,
-        form,
-        { clienteId: "O processo foi alterado por outra operação. Tente novamente." },
-        "/processos/novo",
-        "Novo processo",
-      );
-    throw error;
+    } catch (err) {
+      return next(err);
+    }
   }
-}
-async function detalhe(req, res) {
-  const processo = await service.obterProcesso(
-    req.session.empresaId,
-    Number(req.params.id),
-  );
-  if (!processo)
-    return res.status(404).render("not-found", {
-      title: "Não encontrado",
-      message: "Processo não encontrado.",
-    });
-  res.render("processo-detalhe", {
-    title: processo.nomeProcesso,
-    processo,
-    link: `${req.protocol}://${req.get("host")}/upload/${processo.tokenAcesso}`,
-  });
-}
-async function editarForm(req, res) {
-  const processo = await service.obterProcesso(
-    req.session.empresaId,
-    Number(req.params.id),
-  );
-  if (!processo)
-    return res.status(404).render("not-found", {
-      title: "Não encontrado",
-      message: "Processo não encontrado.",
-    });
-  const clientes = await clienteService.listarClientes(req.session.empresaId);
-  res.render("processo-form", {
-    title: "Editar processo",
-    clientes,
-    form: {
-      ...processo,
-      documentos: processo.documentos.map((doc) => doc.nomeDocumento),
-    },
-    errors: {},
-    action: `/processos/${processo.id}/editar`,
-  });
-}
-async function editar(req, res) {
-  const form = normalize(req.body);
-  const errors = req.validationErrors || validate({ ...form, clienteId: 1 });
-  if (Object.keys(errors).length)
-    return renderForm(
-      req,
-      res,
-      form,
-      errors,
-      `/processos/${Number(req.params.id)}/editar`,
-      "Editar processo",
-    );
-  try {
-    await service.atualizarChecklist(
-      req.session.empresaId,
-      Number(req.params.id),
-      form,
-    );
-    res.redirect(`/processos/${req.params.id}`);
-  } catch (error) {
-    if (error.message === "PROCESSO_NAO_ENCONTRADO")
-      return res.status(404).render("not-found", {
-        title: "Não encontrado",
-        message: "Processo não encontrado ou já concluído.",
+
+  async renderNovo(req, res, next) {
+    try {
+      const empresaId = req.session.empresa.id;
+      const clientes = await clienteService.listarClientes(empresaId);
+
+      return res.render('processos/novo', {
+        title: 'Novo Processo - DocFlow',
+        clientes,
+        dados: { clienteId: req.query.clienteId || '' },
+        errors: {},
+        empresa: req.session.empresa,
       });
-    throw error;
+    } catch (err) {
+      return next(err);
+    }
   }
-}
-async function excluir(req, res) {
-  await service.excluirProcesso(req.session.empresaId, Number(req.params.id));
-  res.redirect("/processos");
-}
-async function enviarLink(req, res) {
-  const processo = await service.obterProcesso(
-    req.session.empresaId,
-    Number(req.params.id),
-  );
-  try {
-    const envio = await envioService.enviarLink(processo, req.body.canalEnvio);
-    await notificacaoService.enviar(envio);
-    req.flash("success", "Link enviado ao cliente com sucesso.");
-  } catch (error) {
-    console.error(`Falha ao enviar link do processo ${req.params.id}:`, error);
-    req.flash(
-      "danger",
-      "Não foi possível enviar o link: verifique o contato cadastrado do cliente.",
-    );
+
+  async cadastrar(req, res, next) {
+    try {
+      const empresaId = req.session.empresa.id;
+      const errors = validationResult(req);
+
+      if (!errors.isEmpty()) {
+        const errorMap = {};
+        errors.array().forEach((err) => {
+          errorMap[err.path] = err.msg;
+        });
+
+        const clientes = await clienteService.listarClientes(empresaId);
+        return res.status(200).render('processos/novo', {
+          title: 'Novo Processo - DocFlow',
+          clientes,
+          dados: req.body,
+          errors: errorMap,
+          empresa: req.session.empresa,
+        });
+      }
+
+      const { clienteId, nomeProcesso, documentos } = req.body;
+
+      try {
+        const processo = await processoService.criarProcesso(empresaId, {
+          clienteId,
+          nomeProcesso,
+          documentos,
+        });
+
+        req.flash('success', 'Processo criado com sucesso.');
+        return res.redirect(`/processos/${processo.id}`);
+      } catch (serviceErr) {
+        if (serviceErr.field) {
+          const clientes = await clienteService.listarClientes(empresaId);
+          return res.status(200).render('processos/novo', {
+            title: 'Novo Processo - DocFlow',
+            clientes,
+            dados: req.body,
+            errors: { [serviceErr.field]: serviceErr.message },
+            empresa: req.session.empresa,
+          });
+        }
+        throw serviceErr;
+      }
+    } catch (err) {
+      return next(err);
+    }
   }
-  req.session.save(() => res.redirect(`/processos/${req.params.id}`));
-}
-function normalize(body) {
-  const raw = Array.isArray(body.documentos)
-    ? body.documentos
-    : [body.documentos];
-  return {
-    clienteId: Number(body.clienteId),
-    nomeProcesso: body.nomeProcesso,
-    documentos: raw
-      .filter(Boolean)
-      .flatMap((item) => item.split(/\r?\n/))
-      .map((item) => item.trim())
-      .filter(Boolean),
-  };
-}
-function validate(form) {
-  const errors = {};
-  if (!form.clienteId) errors.clienteId = "Selecione um cliente.";
-  if (!form.nomeProcesso) errors.nomeProcesso = "Informe o nome do processo.";
-  if (!form.documentos.length)
-    errors.documentos = "Informe ao menos um documento.";
-  return errors;
-}
-async function renderForm(req, res, form, errors, action, title) {
-  const clientes = await clienteService.listarClientes(req.session.empresaId);
-  res
-    .status(200)
-    .render("processo-form", { title, clientes, form, errors, action });
+
+  async detalhe(req, res, next) {
+    try {
+      const empresaId = req.session.empresa.id;
+      const processoId = req.params.id;
+
+      const processo = await processoService.obterProcessoPorId(empresaId, processoId);
+      if (!processo) {
+        const err = new Error('Processo não encontrado.');
+        err.statusCode = 404;
+        return next(err);
+      }
+
+      const baseUrl = `${req.protocol}://${req.get('host')}`;
+      const linkUpload = `${baseUrl}/upload/${processo.tokenAcesso}`;
+
+      return res.render('processos/detalhe', {
+        title: `Processo: ${processo.nomeProcesso} - DocFlow`,
+        processo,
+        linkUpload,
+        empresa: req.session.empresa,
+      });
+    } catch (err) {
+      return next(err);
+    }
+  }
+
+  async renderEditar(req, res, next) {
+    try {
+      const empresaId = req.session.empresa.id;
+      const processoId = req.params.id;
+
+      const processo = await processoService.obterProcessoPorId(empresaId, processoId);
+      if (!processo) {
+        const err = new Error('Processo não encontrado.');
+        err.statusCode = 404;
+        return next(err);
+      }
+
+      return res.render('processos/editar', {
+        title: `Editar Processo - DocFlow`,
+        processo,
+        dados: processo,
+        errors: {},
+        empresa: req.session.empresa,
+      });
+    } catch (err) {
+      return next(err);
+    }
+  }
+
+  async atualizar(req, res, next) {
+    try {
+      const empresaId = req.session.empresa.id;
+      const processoId = req.params.id;
+
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        const errorMap = {};
+        errors.array().forEach((err) => {
+          errorMap[err.path] = err.msg;
+        });
+
+        const processo = await processoService.obterProcessoPorId(empresaId, processoId);
+        return res.status(200).render('processos/editar', {
+          title: `Editar Processo - DocFlow`,
+          processo: processo || { id: processoId },
+          dados: req.body,
+          errors: errorMap,
+          empresa: req.session.empresa,
+        });
+      }
+
+      const { nomeProcesso, documentos } = req.body;
+      await processoService.editarProcesso(empresaId, processoId, {
+        nomeProcesso,
+        documentos,
+      });
+
+      req.flash('success', 'Processo atualizado com sucesso.');
+      return res.redirect(`/processos/${processoId}`);
+    } catch (err) {
+      return next(err);
+    }
+  }
+
+  async excluir(req, res, next) {
+    try {
+      const empresaId = req.session.empresa.id;
+      const processoId = req.params.id;
+
+      await processoService.excluirProcesso(empresaId, processoId);
+
+      req.flash('success', 'Processo excluído com sucesso.');
+      return res.redirect('/processos');
+    } catch (err) {
+      return next(err);
+    }
+  }
+
+  async enviarLink(req, res, next) {
+    try {
+      const empresaId = req.session.empresa.id;
+      const processoId = req.params.id;
+      const { canalEnvio } = req.body;
+
+      const baseUrl = `${req.protocol}://${req.get('host')}`;
+
+      try {
+        await processoService.enviarLink(empresaId, processoId, canalEnvio, baseUrl);
+        req.flash('success', 'Link enviado ao cliente com sucesso.');
+        return res.redirect(`/processos/${processoId}`);
+      } catch (serviceErr) {
+        if (serviceErr.statusCode === 400) {
+          req.flash('danger', serviceErr.message);
+          return res.redirect(`/processos/${processoId}`);
+        }
+        throw serviceErr;
+      }
+    } catch (err) {
+      return next(err);
+    }
+  }
+
+  async downloadDocumento(req, res, next) {
+    try {
+      const empresaId = req.session.empresa.id;
+      const { id: processoId, documentoId } = req.params;
+
+      const docData = await processoService.obterDocumentoParaDownload(
+        empresaId,
+        processoId,
+        documentoId
+      );
+
+      // Configurar cabeçalhos para forçar download
+      res.setHeader('Content-Type', docData.arquivoTipo);
+      res.setHeader('Content-Disposition', `attachment; filename="${encodeURIComponent(docData.arquivoNome)}"`);
+      res.setHeader('Content-Length', docData.conteudo.length);
+
+      return res.status(200).send(docData.conteudo);
+    } catch (err) {
+      return next(err);
+    }
+  }
 }
 
-module.exports = {
-  lista,
-  novoForm,
-  novo,
-  detalhe,
-  editarForm,
-  editar,
-  excluir,
-  enviarLink,
-};
+module.exports = new ProcessoController();

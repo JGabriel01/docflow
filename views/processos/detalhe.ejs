@@ -1,0 +1,214 @@
+<%- include('../partials/header') %>
+
+<div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+  <div>
+    <div class="d-flex align-items-center gap-2 mb-1">
+      <h2 class="fw-bold mb-0"><%= processo.nomeProcesso %></h2>
+      <% if (processo.status === 'CONCLUIDO') { %>
+        <span class="badge bg-success px-3 py-2 rounded-pill">
+          <i class="bi bi-check-circle-fill me-1"></i>CONCLUÍDO
+        </span>
+      <% } else { %>
+        <span class="badge bg-warning text-dark px-3 py-2 rounded-pill">
+          <i class="bi bi-hourglass-split me-1"></i>EM ANDAMENTO
+        </span>
+      <% } %>
+    </div>
+    <p class="text-muted small mb-0">
+      Processo #<%= processo.id %> &bull; Cliente: <strong><%= processo.cliente.nome %></strong> (CPF: <code><%= processo.cliente.cpf %></code>)
+      <% if (processo.dataConclusao) { %>
+        &bull; Concluído em <%= new Date(processo.dataConclusao).toLocaleString('pt-BR') %>
+      <% } %>
+    </p>
+  </div>
+  <div class="d-flex gap-2">
+    <a href="/processos/<%= processo.id %>/editar" class="btn btn-outline-secondary">
+      <i class="bi bi-pencil me-1"></i>Editar
+    </a>
+    <button type="button" class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#modalExcluirProcesso">
+      <i class="bi bi-trash me-1"></i>Excluir
+    </button>
+  </div>
+</div>
+
+<!-- Card do Link Público de Envio -->
+<div class="card shadow-sm mb-4 border-primary-subtle">
+  <div class="card-body p-4">
+    <div class="row align-items-center g-3">
+      <div class="col-lg-7">
+        <label class="form-label fw-bold text-dark d-flex align-items-center gap-2 mb-1">
+          <i class="bi bi-link-45deg text-primary fs-5"></i>
+          Link Único de Coleta do Cliente
+        </label>
+        <p class="text-muted small mb-2">
+          Compartilhe este link com o cliente para que ele possa enviar os documentos com segurança.
+        </p>
+        <div class="input-group">
+          <input
+            type="text"
+            class="form-control bg-light"
+            id="inputLinkCliente"
+            value="<%= linkUpload %>"
+            readonly
+          >
+          <button
+            type="button"
+            class="btn btn-outline-secondary"
+            id="btnCopiarLink"
+            onclick="copiarTexto('<%= linkUpload %>', 'btnCopiarLink')"
+          >
+            <i class="bi bi-clipboard"></i> Copiar
+          </button>
+          <a href="<%= linkUpload %>" target="_blank" class="btn btn-outline-primary" title="Abrir página de upload">
+            <i class="bi bi-box-arrow-up-right"></i>
+          </a>
+        </div>
+      </div>
+
+      <!-- Disparo de Link por E-mail ou WhatsApp -->
+      <div class="col-lg-5">
+        <label class="form-label fw-bold text-dark mb-1">Enviar link diretamente:</label>
+        <p class="text-muted small mb-2">Disparar notificação pelos canais cadastrados do cliente.</p>
+        <div class="d-flex gap-2 flex-wrap">
+          <form action="/processos/<%= processo.id %>/enviar-link" method="POST" class="d-inline">
+            <input type="hidden" name="canalEnvio" value="EMAIL">
+            <button
+              type="submit"
+              class="btn btn-outline-primary btn-sm d-flex align-items-center gap-1"
+              <%= !processo.cliente.email ? 'disabled' : '' %>
+              title="<%= processo.cliente.email ? `Enviar para ${processo.cliente.email}` : 'Cliente sem e-mail cadastrado' %>"
+            >
+              <i class="bi bi-envelope"></i>
+              <span>Enviar por E-mail</span>
+            </button>
+          </form>
+
+          <form action="/processos/<%= processo.id %>/enviar-link" method="POST" class="d-inline">
+            <input type="hidden" name="canalEnvio" value="WHATSAPP">
+            <button
+              type="submit"
+              class="btn btn-outline-success btn-sm d-flex align-items-center gap-1"
+              <%= !processo.cliente.telefone ? 'disabled' : '' %>
+              title="<%= processo.cliente.telefone ? `Enviar para ${processo.cliente.telefone}` : 'Cliente sem telefone cadastrado' %>"
+            >
+              <i class="bi bi-whatsapp"></i>
+              <span>Enviar por WhatsApp</span>
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Tabela de Documentos da Checklist -->
+<div class="card shadow-sm mb-4">
+  <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+    <h5 class="card-title fw-bold mb-0">
+      <i class="bi bi-list-check text-primary me-2"></i>Checklist de Documentos
+    </h5>
+    <% 
+      const totalDocs = processo.documentos ? processo.documentos.length : 0;
+      const recebidosCount = processo.documentos ? processo.documentos.filter(d => d.status === 'RECEBIDO').length : 0;
+    %>
+    <span class="badge bg-light text-dark border">
+      <%= recebidosCount %> de <%= totalDocs %> recebidos
+    </span>
+  </div>
+  <div class="table-responsive">
+    <table class="table table-hover align-middle mb-0">
+      <thead>
+        <tr>
+          <th class="ps-4">Documento Exigido</th>
+          <th>Status</th>
+          <th>Arquivo Recebido</th>
+          <th>Data do Recebimento</th>
+          <th class="text-end pe-4">Ação</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% if (processo.documentos && processo.documentos.length > 0) { %>
+          <% processo.documentos.forEach(function(doc) { %>
+            <tr>
+              <td class="ps-4 fw-semibold text-dark">
+                <i class="bi <%= doc.status === 'RECEBIDO' ? 'bi-file-earmark-check text-success' : 'bi-file-earmark text-muted' %> me-2"></i>
+                <%= doc.nomeDocumento %>
+              </td>
+              <td>
+                <% if (doc.status === 'RECEBIDO') { %>
+                  <span class="badge bg-success px-2.5 py-1 rounded-pill">
+                    <i class="bi bi-check-circle me-1"></i>Recebido
+                  </span>
+                <% } else { %>
+                  <span class="badge bg-warning text-dark px-2.5 py-1 rounded-pill">
+                    <i class="bi bi-clock me-1"></i>Pendente
+                  </span>
+                <% } %>
+              </td>
+              <td>
+                <% if (doc.arquivoNome) { %>
+                  <span class="small font-monospace text-dark"><%= doc.arquivoNome %></span>
+                  <div class="small text-muted"><%= doc.arquivoTipo || '' %></div>
+                <% } else { %>
+                  <span class="small text-muted fst-italic">Aguardando envio do cliente...</span>
+                <% } %>
+              </td>
+              <td>
+                <span class="small text-muted">
+                  <%= doc.dataEnvio ? new Date(doc.dataEnvio).toLocaleString('pt-BR') : '—' %>
+                </span>
+              </td>
+              <td class="text-end pe-4">
+                <% if (doc.status === 'RECEBIDO' && doc.arquivoConteudo) { %>
+                  <a
+                    href="/processos/<%= processo.id %>/documentos/<%= doc.id %>/download"
+                    class="btn btn-sm btn-primary d-inline-flex align-items-center gap-1 shadow-sm"
+                    title="Baixar arquivo seguro decifrado"
+                  >
+                    <i class="bi bi-download"></i>
+                    <span>Baixar</span>
+                  </a>
+                <% } else { %>
+                  <span class="badge bg-light text-muted border">Pendente</span>
+                <% } %>
+              </td>
+            </tr>
+          <% }); %>
+        <% } else { %>
+          <tr>
+            <td colspan="5" class="text-center py-4 text-muted">
+              Nenhum documento cadastrado na checklist.
+            </td>
+          </tr>
+        <% } %>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Modal Confirmação de Exclusão -->
+<div class="modal fade" id="modalExcluirProcesso" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header bg-danger text-white">
+        <h5 class="modal-title">Confirmar Exclusão de Processo</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Fechar"></button>
+      </div>
+      <div class="modal-body">
+        <p>Tem certeza de que deseja excluir o processo <strong><%= processo.nomeProcesso %></strong>?</p>
+        <div class="alert alert-warning mb-0 small">
+          <i class="bi bi-exclamation-triangle-fill me-1"></i>
+          Todos os documentos anexados e o link de envio serão excluídos em cascata permanentemente.
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+        <form action="/processos/<%= processo.id %>/excluir" method="POST">
+          <button type="submit" class="btn btn-danger">Sim, Excluir</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<%- include('../partials/footer') %>

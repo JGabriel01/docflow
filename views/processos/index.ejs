@@ -1,0 +1,123 @@
+<%- include('../partials/header') %>
+
+<div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+  <div>
+    <h2 class="fw-bold mb-1">Painel de Processos</h2>
+    <p class="text-muted small mb-0">Acompanhe a coleta e status dos documentos solicitados aos clientes.</p>
+  </div>
+  <a href="/processos/novo" class="btn btn-primary d-flex align-items-center gap-2">
+    <i class="bi bi-folder-plus"></i>
+    <span>Criar Processo</span>
+  </a>
+</div>
+
+<!-- Barra de Busca -->
+<div class="card shadow-sm mb-4">
+  <div class="card-body p-3">
+    <form action="/processos" method="GET" class="row g-2 align-items-center">
+      <div class="col-md-10">
+        <div class="input-group">
+          <span class="input-group-text bg-white text-muted">
+            <i class="bi bi-search"></i>
+          </span>
+          <input
+            type="text"
+            name="busca"
+            class="form-control border-start-0"
+            placeholder="Buscar por cliente, CPF ou Nº do processo..."
+            value="<%= typeof busca !== 'undefined' ? busca : '' %>"
+          >
+        </div>
+      </div>
+      <div class="col-md-2 d-flex gap-2">
+        <button type="submit" class="btn btn-secondary w-100">Buscar</button>
+        <% if (typeof busca !== 'undefined' && busca) { %>
+          <a href="/processos" class="btn btn-outline-secondary" title="Limpar busca">
+            <i class="bi bi-x-lg"></i>
+          </a>
+        <% } %>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Cards dos Processos -->
+<% if (processos && processos.length > 0) { %>
+  <div class="row g-3">
+    <% processos.forEach(function(processo) { 
+      const totalDocs = processo.documentos ? processo.documentos.length : 0;
+      const recebidosCount = processo.documentos ? processo.documentos.filter(d => d.status === 'RECEBIDO').length : 0;
+      const percentual = totalDocs > 0 ? Math.round((recebidosCount / totalDocs) * 100) : 0;
+    %>
+      <div class="col-md-6 col-lg-4">
+        <div class="card h-100 shadow-sm border-0 border-top border-4 <%= processo.status === 'CONCLUIDO' ? 'border-success' : 'border-warning' %>">
+          <div class="card-body d-flex flex-column p-4">
+            <div class="d-flex justify-content-between align-items-start mb-2">
+              <span class="badge bg-light text-muted border small">#<%= processo.id %></span>
+              <% if (processo.status === 'CONCLUIDO') { %>
+                <span class="badge bg-success px-2.5 py-1 rounded-pill">
+                  <i class="bi bi-check-circle-fill me-1"></i>CONCLUÍDO
+                </span>
+              <% } else { %>
+                <span class="badge bg-warning text-dark px-2.5 py-1 rounded-pill">
+                  <i class="bi bi-hourglass-split me-1"></i>EM ANDAMENTO
+                </span>
+              <% } %>
+            </div>
+
+            <h5 class="fw-bold text-dark mb-1 text-truncate" title="<%= processo.nomeProcesso %>">
+              <%= processo.nomeProcesso %>
+            </h5>
+            <div class="text-muted small mb-3">
+              <i class="bi bi-person me-1"></i><%= processo.cliente ? processo.cliente.nome : 'Cliente não informado' %>
+              <% if (processo.cliente && processo.cliente.cpf) { %>
+                <span class="text-secondary">(<%= processo.cliente.cpf %>)</span>
+              <% } %>
+            </div>
+
+            <!-- Progresso de Coleta -->
+            <div class="mt-auto pt-3 border-top">
+              <div class="d-flex justify-content-between small text-muted mb-1">
+                <span>Progresso da Checklist</span>
+                <span class="fw-semibold"><%= recebidosCount %> de <%= totalDocs %> documentos recebidos</span>
+              </div>
+              <div class="progress" style="height: 8px;">
+                <div
+                  class="progress-bar <%= processo.status === 'CONCLUIDO' ? 'bg-success' : 'bg-primary' %>"
+                  role="progressbar"
+                  style="width: <%= percentual %>%;"
+                  aria-valuenow="<%= percentual %>"
+                  aria-valuemin="0"
+                  aria-valuemax="100"
+                ></div>
+              </div>
+            </div>
+
+            <div class="d-flex justify-content-between align-items-center mt-3 pt-2">
+              <span class="text-muted small">
+                <%= new Date(processo.createdAt).toLocaleDateString('pt-BR') %>
+              </span>
+              <a href="/processos/<%= processo.id %>" class="btn btn-sm btn-outline-primary fw-medium">
+                Ver Detalhes <i class="bi bi-chevron-right ms-1"></i>
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    <% }); %>
+  </div>
+<% } else { %>
+  <!-- CB-05: Busca sem resultado -->
+  <div class="card shadow-sm text-center py-5">
+    <div class="card-body">
+      <i class="bi bi-folder2-open fs-1 text-muted d-block mb-3"></i>
+      <h5 class="fw-semibold">Nenhum processo encontrado.</h5>
+      <p class="text-muted small mb-3">Não há processos correspondentes aos filtros aplicados.</p>
+      <a href="/processos/novo" class="btn btn-primary btn-sm">
+        <i class="bi bi-plus-lg me-1"></i>Criar Novo Processo
+      </a>
+    </div>
+  </div>
+<% } %>
+
+<%- include('../partials/footer') %>

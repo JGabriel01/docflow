@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Envio de Documentos - DocFlow</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body class="bg-light min-vh-100 py-4 d-flex flex-column">
+  <div class="container" style="max-width: 760px;">
+    <!-- Cabeçalho Simplificado -->
+    <div class="text-center mb-4">
+      <div class="d-inline-flex align-items-center justify-content-center bg-primary text-white rounded-circle p-3 mb-2 shadow-sm">
+        <i class="bi bi-shield-lock-fill fs-3"></i>
+      </div>
+      <h3 class="fw-bold mb-1">DocFlow &bull; Portal do Cliente</h3>
+      <p class="text-muted small">Envio seguro de documentos com armazenamento criptografado</p>
+    </div>
+
+    <!-- Mensagens de Alerta / Sucesso / Conclusão -->
+    <% if (typeof mensagemSucesso !== 'undefined' && mensagemSucesso) { %>
+      <div class="alert alert-success d-flex align-items-center shadow-sm mb-4" role="alert">
+        <i class="bi bi-check-circle-fill fs-4 me-3"></i>
+        <div>
+          <h6 class="alert-heading fw-bold mb-0"><%= mensagemSucesso %></h6>
+          <% if (processo.status === 'CONCLUIDO') { %>
+            <div class="small">Seus documentos foram encaminhados com sucesso e o processo foi finalizado. Obrigado!</div>
+          <% } %>
+        </div>
+      </div>
+    <% } %>
+
+    <% if (typeof erroFormato !== 'undefined' && erroFormato) { %>
+      <div class="alert alert-danger d-flex align-items-center shadow-sm mb-4" role="alert">
+        <i class="bi bi-exclamation-triangle-fill fs-4 me-3"></i>
+        <div>
+          <h6 class="alert-heading fw-bold mb-0">Erro no envio do documento</h6>
+          <div class="small"><%= erroFormato %></div>
+        </div>
+      </div>
+    <% } %>
+
+    <!-- Card Principal do Processo -->
+    <div class="card shadow-sm mb-4 border-0">
+      <div class="card-header bg-white py-3 border-bottom d-flex justify-content-between align-items-center flex-wrap gap-2">
+        <div>
+          <h5 class="fw-bold text-dark mb-0"><%= processo.nomeProcesso %></h5>
+          <small class="text-muted">Cliente: <%= processo.cliente.nome %></small>
+        </div>
+        <div>
+          <% if (processo.status === 'CONCLUIDO') { %>
+            <span class="badge bg-success px-3 py-2 rounded-pill">
+              <i class="bi bi-check-circle-fill me-1"></i>Processo Concluído
+            </span>
+          <% } else { %>
+            <span class="badge bg-warning text-dark px-3 py-2 rounded-pill">
+              <i class="bi bi-hourglass-split me-1"></i>Aguardando Documentos
+            </span>
+          <% } %>
+        </div>
+      </div>
+
+      <div class="card-body p-4">
+        <% 
+          const totalDocs = processo.documentos ? processo.documentos.length : 0;
+          const recebidosCount = processo.documentos ? processo.documentos.filter(d => d.status === 'RECEBIDO').length : 0;
+          const pendentesRestantes = totalDocs - recebidosCount;
+        %>
+
+        <div class="mb-4">
+          <div class="d-flex justify-content-between small text-muted mb-1">
+            <span>Progresso da sua checklist</span>
+            <span class="fw-semibold"><%= recebidosCount %> de <%= totalDocs %> documentos enviados</span>
+          </div>
+          <div class="progress" style="height: 10px;">
+            <div
+              class="progress-bar <%= processo.status === 'CONCLUIDO' ? 'bg-success' : 'bg-primary' %>"
+              role="progressbar"
+              style="width: <%= totalDocs > 0 ? (recebidosCount / totalDocs) * 100 : 0 %>%;"
+            ></div>
+          </div>
+        </div>
+
+        <p class="text-muted small mb-3">
+          Por favor, envie os documentos listados abaixo. São aceitos arquivos nos formatos <strong>PDF, JPG e PNG</strong> (tamanho máximo de 5 MB por arquivo).
+        </p>
+
+        <!-- Itens da Checklist -->
+        <div class="d-flex flex-column gap-3">
+          <% if (processo.documentos && processo.documentos.length > 0) { %>
+            <% processo.documentos.forEach(function(doc) { %>
+              <div class="p-3 rounded border <%= doc.status === 'RECEBIDO' ? 'bg-light border-success-subtle' : 'bg-white border-warning-subtle' %>">
+                <div class="d-flex justify-content-between align-items-center mb-2 flex-wrap gap-2">
+                  <div class="d-flex align-items-center gap-2">
+                    <i class="bi <%= doc.status === 'RECEBIDO' ? 'bi-check-circle-fill text-success fs-5' : 'bi-file-earmark-arrow-up text-warning-emphasis fs-5' %>"></i>
+                    <span class="fw-bold text-dark"><%= doc.nomeDocumento %></span>
+                  </div>
+                  <div>
+                    <% if (doc.status === 'RECEBIDO') { %>
+                      <span class="badge bg-success px-2.5 py-1.5 rounded-pill">
+                        <i class="bi bi-check-circle me-1"></i>Recebido
+                      </span>
+                    <% } else { %>
+                      <span class="badge bg-warning text-dark px-2.5 py-1.5 rounded-pill">
+                        <i class="bi bi-clock me-1"></i>Pendente
+                      </span>
+                    <% } %>
+                  </div>
+                </div>
+
+                <% if (doc.status === 'RECEBIDO') { %>
+                  <div class="small text-muted ps-4">
+                    <i class="bi bi-paperclip me-1"></i>Arquivo: <strong><%= doc.arquivoNome %></strong>
+                    <% if (doc.dataEnvio) { %>
+                      &bull; Enviado em <%= new Date(doc.dataEnvio).toLocaleString('pt-BR') %>
+                    <% } %>
+                  </div>
+                <% } else { %>
+                  <!-- Formulário de Upload para o Item Pendente -->
+                  <form action="/upload/<%= token %>" method="POST" enctype="multipart/form-data" class="mt-2 ps-4">
+                    <input type="hidden" name="documentoId" value="<%= doc.id %>">
+                    <div class="input-group">
+                      <input
+                        type="file"
+                        name="arquivo"
+                        class="form-control form-control-sm <%= typeof documentoIdErro !== 'undefined' && documentoIdErro == doc.id ? 'is-invalid' : '' %>"
+                        accept=".pdf,.jpg,.jpeg,.png,application/pdf,image/jpeg,image/png"
+                        required
+                      >
+                      <button type="submit" class="btn btn-sm btn-primary px-3">
+                        <i class="bi bi-upload me-1"></i>Enviar
+                      </button>
+                      <% if (typeof documentoIdErro !== 'undefined' && documentoIdErro == doc.id && typeof erroFormato !== 'undefined' && erroFormato) { %>
+                        <div class="invalid-feedback"><%= erroFormato %></div>
+                      <% } %>
+                    </div>
+                    <div class="form-text small">Aceita: PDF, JPG, PNG (máx. 5 MB)</div>
+                  </form>
+                <% } %>
+              </div>
+            <% }); %>
+          <% } %>
+        </div>
+
+        <% if (processo.status === 'CONCLUIDO') { %>
+          <div class="text-center py-4 mt-3 bg-light rounded">
+            <i class="bi bi-patch-check-fill text-success fs-1 d-block mb-2"></i>
+            <h5 class="fw-bold text-success mb-1">Processo 100% Concluído!</h5>
+            <p class="text-muted small mb-0">Todos os documentos exigidos foram recebidos com segurança.</p>
+          </div>
+        <% } %>
+      </div>
+    </div>
+
+    <div class="text-center text-muted small mt-auto">
+      <span>DocFlow &copy; <%= new Date().getFullYear() %> &bull; Plataforma Segura</span>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

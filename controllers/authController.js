@@ -1,38 +1,63 @@
-const bcrypt = require("bcrypt");
-const prisma = require("../lib/prisma");
+const empresaService = require('../services/empresaService');
 
-async function loginForm(req, res) {
-  res.render("login", { title: "Entrar", errors: {}, form: {} });
-}
-
-async function login(req, res) {
-  const { email, senha } = req.body;
-  const empresa = await prisma.empresa.findUnique({ where: { email } });
-  if (
-    !empresa ||
-    !empresa.ativa ||
-    !(await bcrypt.compare(senha || "", empresa.senhaHash))
-  ) {
-    return res.status(422).render("login", {
-      title: "Entrar",
-      errors: { senha: "E-mail ou senha inválidos." },
-      form: req.body,
+class AuthController {
+  renderLogin(req, res) {
+    if (req.session && req.session.empresa) {
+      return res.redirect('/processos');
+    }
+    return res.render('auth/login', {
+      title: 'Entrar no DocFlow',
+      layout: false,
+      dados: {},
+      errors: {},
     });
   }
-    req.session.empresaId = empresa.id;
-    req.session.empresa = {
-      id: empresa.id,
-      razaoSocial: empresa.razaoSocial,
-      cnpj: empresa.cnpj,
-      email: empresa.email,
-      plano: empresa.plano,
-      ativa: empresa.ativa,
-    };
-  req.session.save(() => res.redirect("/processos"));
+
+  async login(req, res, next) {
+    try {
+      const { email, senha } = req.body;
+
+      if (!email || !senha) {
+        req.flash('danger', 'E-mail e senha são obrigatórios.');
+        return res.status(200).render('auth/login', {
+          title: 'Entrar no DocFlow',
+          layout: false,
+          dados: { email },
+          errors: {
+            email: !email ? 'E-mail é obrigatório' : null,
+            senha: !senha ? 'Senha é obrigatória' : null,
+          },
+        });
+      }
+
+      const empresa = await empresaService.autenticarEmpresa(email, senha);
+
+      if (!empresa) {
+        // CB-09: E-mail ou senha inválidos
+        req.flash('danger', 'E-mail ou senha inválidos.');
+        return res.status(200).render('auth/login', {
+          title: 'Entrar no DocFlow',
+          layout: false,
+          dados: { email },
+          errors: {},
+        });
+      }
+
+      // Sessão criada com sucesso
+      req.session.empresa = empresa;
+      return res.redirect('/processos');
+    } catch (err) {
+      return next(err);
+    }
+  }
+
+  logout(req, res, next) {
+    req.session.destroy((err) => {
+      if (err) return next(err);
+      res.clearCookie('connect.sid');
+      return res.redirect('/login');
+    });
+  }
 }
 
-function logout(req, res) {
-  req.session.destroy(() => res.redirect("/login"));
-}
-
-module.exports = { loginForm, login, logout };
+module.exports = new AuthController();

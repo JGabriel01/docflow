@@ -1,73 +1,96 @@
-require("dotenv").config();
-require("express-async-errors");
-const express = require("express");
-const session = require("express-session");
-const flash = require("connect-flash");
-const { PrismaSessionStore } = require("@quixo3/prisma-session-store");
-const prisma = require("./lib/prisma");
+require('dotenv').config();
+const path = require('path');
+const express = require('express');
+const session = require('express-session');
+const flash = require('connect-flash');
+const { PrismaSessionStore } = require('@quixo3/prisma-session-store');
+
+const prisma = require('./lib/prisma');
+const cryptoService = require('./services/cryptoService');
+const errorHandler = require('./middlewares/errorHandler');
+
+// Validar chave de criptografia na inicialização (CB-11)
+cryptoService.validateEncryptionKey();
 
 const app = express();
-const sessionStore = new PrismaSessionStore(prisma, {
-  checkPeriod: 2 * 60 * 1000,
-  dbRecordIdIsSessionId: true,
-});
 
-app.set("view engine", "ejs");
-app.set("views", `${__dirname}/views`);
+// Configurações de View Engine (EJS)
+app.set('view engine', 'ejs');
+app.set('views', path.join(__dirname, 'views'));
+
+// Arquivos estáticos
+app.use(express.static(path.join(__dirname, 'public')));
+
+// Parsers
 app.use(express.urlencoded({ extended: true }));
-app.use(express.static(`${__dirname}/public`));
-app.use(
-  session({
-    secret: process.env.SESSION_SECRET,
-    resave: false,
-    saveUninitialized: false,
-    store: sessionStore,
-  }),
-);
+app.use(express.json());
+
+// Gerenciamento de Sessão via MySQL (PrismaSessionStore)
+const sessionOptions = {
+  secret: process.env.SESSION_SECRET || 'docflow-secret-fallback-key-2026',
+  resave: false,
+  saveUninitialized: false,
+  cookie: {
+    maxAge: 7 * 24 * 60 * 60 * 1000, // 7 dias
+    httpOnly: true,
+  },
+};
+
+// Em ambiente de teste ou desenvolvimento, usar PrismaSessionStore
+if (process.env.NODE_ENV !== 'test') {
+  sessionOptions.store = new PrismaSessionStore(prisma, {
+    checkPeriod: 10 * 60 * 1000,
+    dbRecordIdIsSessionId: true,
+    dbRecordIdFunction: undefined,
+  });
+}
+
+app.use(session(sessionOptions));
 app.use(flash());
+
+// Middleware para variáveis globais nas views
 app.use((req, res, next) => {
-  res.locals.flash =
-    req.method === "GET"
-      ? {
-          success: req.flash("success"),
-          danger: req.flash("danger"),
-          warning: req.flash("warning"),
-        }
-      : { success: [], danger: [], warning: [] };
+  res.locals.messages = {
+    success: req.flash('success'),
+    danger: req.flash('danger'),
+    warning: req.flash('warning'),
+    info: req.flash('info'),
+  };
+  res.locals.empresa = req.session && req.session.empresa ? req.session.empresa : null;
   res.locals.currentPath = req.path;
-  res.locals.empresa = req.session.empresa || null;
-  res.locals.escapeHtml = (value) => String(value ?? "")
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&#39;");
   next();
 });
-app.use("/", require("./routes/auth"));
-app.use("/empresas", require("./routes/empresas"));
-app.use("/clientes", require("./routes/clientes"));
-app.use("/processos", require("./routes/processos"));
-app.use("/upload", require("./routes/upload"));
-app.get("/", (req, res) =>
-  res.redirect(req.session.empresaId ? "/processos" : "/login"),
-);
-app.use((error, req, res, next) => {
-  if (error.code === "LIMIT_FILE_SIZE")
-    return res.status(200).render("link-invalido", {
-      title: "Arquivo inválido",
-      message: "O arquivo deve ter no máximo 10 MB.",
-      detail: "Envie um PDF, JPG ou PNG com até 10 MB.",
-    });
-  next(error);
-});
-app.use((error, req, res, next) => {
-  console.error(error);
-  res.status(500).render("not-found", {
-    title: "Erro",
-    message: "Ocorreu um erro inesperado. Tente novamente.",
-  });
+
+// Importação das Rotas
+const authRoutes = require('./routes/authRoutes');
+const empresaRoutes = require('./routes/empresaRoutes');
+const clienteRoutes = require('./routes/clienteRoutes');
+const processoRoutes = require('./routes/processoRoutes');
+const uploadRoutes = require('./routes/uploadRoutes');
+
+// Rota raiz
+app.get('/', (req, res) => {
+  if (req.session && req.session.empresa) {
+    return res.redirect('/processos');
+  }
+  return res.redirect('/login');
 });
 
+// Registro dos Módulos de Rotas
+app.use('/', authRoutes);
+app.use('/empresas', empresaRoutes);
+app.use('/clientes', clienteRoutes);
+app.use('/processos', processoRoutes);
+app.use('/upload', uploadRoutes);
+
+// Tratamento de Rota Não Encontrada (404)
+app.use((req, res, next) => {
+  const err = new Error('Página não encontrada.');
+  err.statusCode = 404;
+  next(err);
+});
+
+// Tratamento Centralizado de Erros
+app.use(errorHandler);
+
 module.exports = app;
-app.sessionStore = sessionStore;

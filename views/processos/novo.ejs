@@ -1,0 +1,158 @@
+<%- include('../partials/header') %>
+
+<div class="row justify-content-center">
+  <div class="col-lg-8">
+    <div class="card shadow-sm">
+      <div class="card-header bg-white py-3">
+        <h5 class="card-title fw-bold mb-0">
+          <i class="bi bi-folder-plus text-primary me-2"></i>Criar Processo de Coleta
+        </h5>
+      </div>
+      <div class="card-body p-4">
+        <form action="/processos/novo" method="POST" novalidate id="formProcesso">
+          <!-- Seleção do Cliente -->
+          <div class="mb-3">
+            <label for="clienteId" class="form-label fw-semibold">Cliente *</label>
+            <select
+              class="form-select <%= typeof errors !== 'undefined' && errors.clienteId ? 'is-invalid' : '' %>"
+              id="clienteId"
+              name="clienteId"
+              required
+            >
+              <option value="">Selecione o cliente...</option>
+              <% if (clientes && clientes.length > 0) { %>
+                <% clientes.forEach(function(c) { 
+                  const selected = (typeof dados !== 'undefined' && dados.clienteId == c.id) ? 'selected' : '';
+                %>
+                  <option value="<%= c.id %>" <%= selected %>>
+                    <%= c.nome %> (CPF: <%= c.cpf %>)
+                  </option>
+                <% }); %>
+              <% } %>
+            </select>
+            <% if (typeof errors !== 'undefined' && errors.clienteId) { %>
+              <div class="invalid-feedback"><%= errors.clienteId %></div>
+            <% } %>
+            <% if (!clientes || clientes.length === 0) { %>
+              <div class="form-text text-warning">
+                Nenhum cliente cadastrado. <a href="/clientes/novo">Cadastre um cliente primeiro</a>.
+              </div>
+            <% } %>
+          </div>
+
+          <!-- Nome do Processo -->
+          <div class="mb-3">
+            <label for="nomeProcesso" class="form-label fw-semibold">Nome do Processo / Finalidade *</label>
+            <input
+              type="text"
+              class="form-control <%= typeof errors !== 'undefined' && errors.nomeProcesso ? 'is-invalid' : '' %>"
+              id="nomeProcesso"
+              name="nomeProcesso"
+              value="<%= typeof dados !== 'undefined' && dados.nomeProcesso ? dados.nomeProcesso : '' %>"
+              placeholder="Ex.: Admissão - Contrato de Locação"
+              required
+            >
+            <% if (typeof errors !== 'undefined' && errors.nomeProcesso) { %>
+              <div class="invalid-feedback"><%= errors.nomeProcesso %></div>
+            <% } %>
+          </div>
+
+          <!-- Checklist de Documentos Exigidos -->
+          <div class="mb-4">
+            <label class="form-label fw-semibold d-flex justify-content-between align-items-center">
+              <span>Documentos Exigidos (Checklist) *</span>
+              <button type="button" class="btn btn-sm btn-outline-primary" id="btnAdicionarDoc">
+                <i class="bi bi-plus-circle me-1"></i>Adicionar Documento
+              </button>
+            </label>
+
+            <!-- Sugestões Rápidas -->
+            <div class="mb-2">
+              <span class="small text-muted me-2">Sugestões rápidas:</span>
+              <button type="button" class="btn btn-sm btn-light border py-0 px-2 me-1" onclick="adicionarSugestao('RG')">+ RG</button>
+              <button type="button" class="btn btn-sm btn-light border py-0 px-2 me-1" onclick="adicionarSugestao('CPF')">+ CPF</button>
+              <button type="button" class="btn btn-sm btn-light border py-0 px-2 me-1" onclick="adicionarSugestao('Comprovante de Residência')">+ Residência</button>
+              <button type="button" class="btn btn-sm btn-light border py-0 px-2" onclick="adicionarSugestao('Comprovante de Renda')">+ Renda</button>
+            </div>
+
+            <div id="containerDocumentos" class="d-flex flex-column gap-2">
+              <% 
+                let docsPreenchidos = ['RG', 'Comprovante de Residência'];
+                if (typeof dados !== 'undefined' && dados.documentos) {
+                  if (Array.isArray(dados.documentos)) {
+                    docsPreenchidos = dados.documentos;
+                  } else if (typeof dados.documentos === 'string') {
+                    docsPreenchidos = [dados.documentos];
+                  }
+                }
+              %>
+              <% docsPreenchidos.forEach(function(docNome, index) { %>
+                <div class="input-group item-doc">
+                  <span class="input-group-text bg-white text-muted">
+                    <i class="bi bi-file-earmark-text"></i>
+                  </span>
+                  <input
+                    type="text"
+                    name="documentos[]"
+                    class="form-control <%= typeof errors !== 'undefined' && errors.documentos ? 'is-invalid' : '' %>"
+                    placeholder="Nome do documento (ex: RG, CPF, Residência)"
+                    value="<%= docNome %>"
+                    required
+                  >
+                  <button type="button" class="btn btn-outline-danger" onclick="removerDoc(this)">
+                    <i class="bi bi-trash"></i>
+                  </button>
+                </div>
+              <% }); %>
+            </div>
+
+            <% if (typeof errors !== 'undefined' && errors.documentos) { %>
+              <div class="text-danger small mt-1"><%= errors.documentos %></div>
+            <% } %>
+            <div class="form-text">Cada documento adicionado será um item na checklist para upload pelo cliente.</div>
+          </div>
+
+          <div class="d-flex justify-content-end gap-2 pt-2 border-top">
+            <a href="/processos" class="btn btn-outline-secondary">Cancelar</a>
+            <button type="submit" class="btn btn-primary px-4">
+              <i class="bi bi-check2-circle me-1"></i>Criar Processo
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  function removerDoc(btn) {
+    const container = document.getElementById('containerDocumentos');
+    if (container.children.length > 1) {
+      btn.closest('.item-doc').remove();
+    } else {
+      alert('O processo deve conter ao menos um documento na checklist.');
+    }
+  }
+
+  function adicionarSugestao(nome) {
+    const container = document.getElementById('containerDocumentos');
+    const div = document.createElement('div');
+    div.className = 'input-group item-doc';
+    div.innerHTML = `
+      <span class="input-group-text bg-white text-muted">
+        <i class="bi bi-file-earmark-text"></i>
+      </span>
+      <input type="text" name="documentos[]" class="form-control" value="${nome}" required>
+      <button type="button" class="btn btn-outline-danger" onclick="removerDoc(this)">
+        <i class="bi bi-trash"></i>
+      </button>
+    `;
+    container.appendChild(div);
+  }
+
+  document.getElementById('btnAdicionarDoc').addEventListener('click', () => {
+    adicionarSugestao('');
+  });
+</script>
+
+<%- include('../partials/footer') %>

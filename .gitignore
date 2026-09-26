@@ -1,9 +1,8 @@
-node_modules
+node_modules/
 .env
-storage/uploads
-public/uploads
-*.log
-*.pdf
-*.jpeg
-*.jpg
-*.png
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.DS_Store
+dist/
+coverage/

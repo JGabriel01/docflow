@@ -1,0 +1,125 @@
+<%- include('../partials/header') %>
+
+<div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+  <div>
+    <div class="d-flex align-items-center gap-2 mb-1">
+      <h2 class="fw-bold mb-0">Histórico de Documentos</h2>
+      <span class="badge badge-pro rounded-pill px-2.5 py-1">Plano Pro</span>
+    </div>
+    <p class="text-muted small mb-0">
+      Cliente: <strong><%= cliente.nome %></strong> &bull; CPF: <code><%= cliente.cpf %></code>
+    </p>
+  </div>
+  <a href="/clientes" class="btn btn-outline-secondary">
+    <i class="bi bi-arrow-left me-1"></i>Voltar para Clientes
+  </a>
+</div>
+
+<% if (cliente.processos && cliente.processos.length > 0) { %>
+  <div class="row g-4">
+    <% cliente.processos.forEach(function(processo) { %>
+      <div class="col-12">
+        <div class="card shadow-sm border-0 border-top border-4 <%= processo.status === 'CONCLUIDO' ? 'border-success' : 'border-warning' %>">
+          <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center flex-wrap gap-2">
+            <div>
+              <h5 class="fw-bold mb-1 text-dark">
+                <i class="bi bi-folder2-open text-primary me-2"></i><%= processo.nomeProcesso %>
+              </h5>
+              <div class="text-muted small">
+                Iniciado em <%= new Date(processo.createdAt).toLocaleString('pt-BR') %>
+                <% if (processo.dataConclusao) { %>
+                  &bull; Concluído em <%= new Date(processo.dataConclusao).toLocaleString('pt-BR') %>
+                <% } %>
+              </div>
+            </div>
+            <div class="d-flex align-items-center gap-2">
+              <% if (processo.status === 'CONCLUIDO') { %>
+                <span class="badge bg-success px-3 py-2 rounded-pill">
+                  <i class="bi bi-check-circle-fill me-1"></i>CONCLUÍDO
+                </span>
+              <% } else { %>
+                <span class="badge bg-warning text-dark px-3 py-2 rounded-pill">
+                  <i class="bi bi-hourglass-split me-1"></i>EM ANDAMENTO
+                </span>
+              <% } %>
+              <a href="/processos/<%= processo.id %>" class="btn btn-sm btn-outline-primary">
+                Ver Detalhes
+              </a>
+            </div>
+          </div>
+          <div class="card-body p-0">
+            <div class="table-responsive">
+              <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                  <tr>
+                    <th class="ps-4">Documento Exigido</th>
+                    <th>Status</th>
+                    <th>Arquivo Anexado</th>
+                    <th>Data de Envio</th>
+                    <th class="text-end pe-4">Ação</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <% if (processo.documentos && processo.documentos.length > 0) { %>
+                    <% processo.documentos.forEach(function(doc) { %>
+                      <tr>
+                        <td class="ps-4 fw-medium"><%= doc.nomeDocumento %></td>
+                        <td>
+                          <% if (doc.status === 'RECEBIDO') { %>
+                            <span class="badge bg-success-subtle text-success border border-success-subtle px-2 py-1">
+                              <i class="bi bi-check-circle me-1"></i>Recebido
+                            </span>
+                          <% } else { %>
+                            <span class="badge bg-warning-subtle text-warning-emphasis border border-warning-subtle px-2 py-1">
+                              <i class="bi bi-clock me-1"></i>Pendente
+                            </span>
+                          <% } %>
+                        </td>
+                        <td>
+                          <% if (doc.arquivoNome) { %>
+                            <span class="small text-muted"><i class="bi bi-file-earmark-check me-1"></i><%= doc.arquivoNome %></span>
+                          <% } else { %>
+                            <span class="small text-muted fst-italic">—</span>
+                          <% } %>
+                        </td>
+                        <td class="small text-muted">
+                          <%= doc.dataEnvio ? new Date(doc.dataEnvio).toLocaleString('pt-BR') : '—' %>
+                        </td>
+                        <td class="text-end pe-4">
+                          <% if (doc.status === 'RECEBIDO' && doc.arquivoConteudo) { %>
+                            <a href="/processos/<%= processo.id %>/documentos/<%= doc.id %>/download" class="btn btn-sm btn-outline-primary" title="Baixar Arquivo">
+                              <i class="bi bi-download me-1"></i>Baixar
+                            </a>
+                          <% } else { %>
+                            <span class="badge bg-light text-muted border">Não disponível</span>
+                          <% } %>
+                        </td>
+                      </tr>
+                    <% }); %>
+                  <% } else { %>
+                    <tr>
+                      <td colspan="5" class="text-center py-3 text-muted">Nenhum documento cadastrado neste processo.</td>
+                    </tr>
+                  <% } %>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    <% }); %>
+  </div>
+<% } else { %>
+  <div class="card shadow-sm text-center py-5">
+    <div class="card-body">
+      <i class="bi bi-folder-x fs-1 text-muted d-block mb-3"></i>
+      <h5 class="fw-semibold">Nenhum processo encontrado</h5>
+      <p class="text-muted small">Este cliente ainda não possui processos ou documentos arquivados.</p>
+      <a href="/processos/novo?clienteId=<%= cliente.id %>" class="btn btn-primary btn-sm">
+        <i class="bi bi-plus-lg me-1"></i>Iniciar Novo Processo
+      </a>
+    </div>
+  </div>
+<% } %>
+
+<%- include('../partials/footer') %>

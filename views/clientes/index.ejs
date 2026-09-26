@@ -1,0 +1,148 @@
+<%- include('../partials/header') %>
+
+<div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+  <div>
+    <h2 class="fw-bold mb-1">Clientes</h2>
+    <p class="text-muted small mb-0">Gerencie os clientes cadastrados para solicitação de documentos.</p>
+  </div>
+  <a href="/clientes/novo" class="btn btn-primary d-flex align-items-center gap-2">
+    <i class="bi bi-person-plus-fill"></i>
+    <span>Novo Cliente</span>
+  </a>
+</div>
+
+<!-- Barra de Busca -->
+<div class="card shadow-sm mb-4">
+  <div class="card-body p-3">
+    <form action="/clientes" method="GET" class="row g-2 align-items-center">
+      <div class="col-md-10">
+        <div class="input-group">
+          <span class="input-group-text bg-white text-muted">
+            <i class="bi bi-search"></i>
+          </span>
+          <input
+            type="text"
+            name="busca"
+            class="form-control border-start-0"
+            placeholder="Buscar por nome ou CPF..."
+            value="<%= typeof busca !== 'undefined' ? busca : '' %>"
+          >
+        </div>
+      </div>
+      <div class="col-md-2 d-flex gap-2">
+        <button type="submit" class="btn btn-secondary w-100">Buscar</button>
+        <% if (typeof busca !== 'undefined' && busca) { %>
+          <a href="/clientes" class="btn btn-outline-secondary" title="Limpar busca">
+            <i class="bi bi-x-lg"></i>
+          </a>
+        <% } %>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Lista de Clientes -->
+<div class="card shadow-sm">
+  <div class="table-responsive">
+    <table class="table table-hover align-middle mb-0">
+      <thead>
+        <tr>
+          <th>Nome</th>
+          <th>CPF</th>
+          <th>Contato</th>
+          <th>Processos</th>
+          <th class="text-end">Ações</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% if (clientes && clientes.length > 0) { %>
+          <% clientes.forEach(function(cliente) { %>
+            <tr>
+              <td>
+                <div class="fw-semibold text-dark"><%= cliente.nome %></div>
+                <small class="text-muted">Cadastrado em <%= new Date(cliente.createdAt).toLocaleDateString('pt-BR') %></small>
+              </td>
+              <td><code><%= cliente.cpf %></code></td>
+              <td>
+                <div class="small">
+                  <% if (cliente.email) { %>
+                    <div><i class="bi bi-envelope text-muted me-1"></i><%= cliente.email %></div>
+                  <% } %>
+                  <% if (cliente.telefone) { %>
+                    <div><i class="bi bi-whatsapp text-muted me-1"></i><%= cliente.telefone %></div>
+                  <% } %>
+                  <% if (!cliente.email && !cliente.telefone) { %>
+                    <span class="text-muted fst-italic">Sem contato</span>
+                  <% } %>
+                </div>
+              </td>
+              <td>
+                <span class="badge bg-light text-dark border">
+                  <%= cliente._count ? cliente._count.processos : 0 %> processo(s)
+                </span>
+              </td>
+              <td class="text-end">
+                <div class="btn-group btn-group-sm">
+                  <% if (typeof empresa !== 'undefined' && empresa && empresa.plano === 'PRO') { %>
+                    <a href="/clientes/<%= cliente.id %>/historico" class="btn btn-outline-primary" title="Histórico do Cliente (Plano Pro)">
+                      <i class="bi bi-clock-history me-1"></i>Histórico
+                    </a>
+                  <% } %>
+                  <a href="/processos/novo?clienteId=<%= cliente.id %>" class="btn btn-outline-success" title="Iniciar Processo para este cliente">
+                    <i class="bi bi-folder-plus me-1"></i>Processo
+                  </a>
+                  <a href="/clientes/<%= cliente.id %>/editar" class="btn btn-outline-secondary" title="Editar">
+                    <i class="bi bi-pencil"></i>
+                  </a>
+                  <button
+                    type="button"
+                    class="btn btn-outline-danger"
+                    data-bs-toggle="modal"
+                    data-bs-target="#modalExcluirCliente<%= cliente.id %>"
+                    title="Excluir"
+                  >
+                    <i class="bi bi-trash"></i>
+                  </button>
+                </div>
+
+                <!-- Modal Excluir Cliente (CB-13 alerta de cascata) -->
+                <div class="modal fade" id="modalExcluirCliente<%= cliente.id %>" tabindex="-1" aria-hidden="true">
+                  <div class="modal-dialog">
+                    <div class="modal-content text-start">
+                      <div class="modal-header bg-danger text-white">
+                        <h5 class="modal-title">Confirmar Exclusão de Cliente</h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Fechar"></button>
+                      </div>
+                      <div class="modal-body">
+                        <p>Tem certeza de que deseja excluir o cliente <strong><%= cliente.nome %></strong>?</p>
+                        <div class="alert alert-warning mb-0 small">
+                          <i class="bi bi-exclamation-triangle-fill me-1"></i>
+                          <strong>Atenção:</strong> Todos os processos e documentos vinculados a este cliente serão permanentemente excluídos em cascata.
+                        </div>
+                      </div>
+                      <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        <form action="/clientes/<%= cliente.id %>/excluir" method="POST">
+                          <button type="submit" class="btn btn-danger">Sim, Excluir</button>
+                        </form>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </td>
+            </tr>
+          <% }); %>
+        <% } else { %>
+          <tr>
+            <td colspan="5" class="text-center py-5 text-muted">
+              <i class="bi bi-people fs-1 d-block mb-2 text-secondary"></i>
+              Nenhum cliente encontrado.
+            </td>
+          </tr>
+        <% } %>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<%- include('../partials/footer') %>

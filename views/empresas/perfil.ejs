@@ -1,0 +1,139 @@
+<%- include('../partials/header') %>
+
+<div class="row justify-content-center">
+  <div class="col-lg-8">
+    <div class="card shadow-sm mb-4">
+      <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+        <h5 class="card-title fw-bold mb-0">
+          <i class="bi bi-building text-primary me-2"></i>Perfil da Empresa
+        </h5>
+        <div>
+          <% if (empresa.plano === 'PRO') { %>
+            <span class="badge badge-pro px-3 py-2 rounded-pill">
+              <i class="bi bi-star-fill me-1"></i>Plano PRO Ativo
+            </span>
+          <% } else { %>
+            <span class="badge bg-secondary px-3 py-2 rounded-pill">
+              Plano Grátis
+            </span>
+          <% } %>
+        </div>
+      </div>
+      <div class="card-body p-4">
+        <form action="/empresas/perfil" method="POST" novalidate>
+          <div class="mb-3">
+            <label for="razaoSocial" class="form-label fw-semibold">Razão Social</label>
+            <input
+              type="text"
+              class="form-control <%= typeof errors !== 'undefined' && errors.razaoSocial ? 'is-invalid' : '' %>"
+              id="razaoSocial"
+              name="razaoSocial"
+              value="<%= typeof dados !== 'undefined' && dados.razaoSocial ? dados.razaoSocial : empresa.razaoSocial %>"
+              required
+            >
+            <% if (typeof errors !== 'undefined' && errors.razaoSocial) { %>
+              <div class="invalid-feedback"><%= errors.razaoSocial %></div>
+            <% } %>
+          </div>
+
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label for="cnpj" class="form-label fw-semibold">CNPJ</label>
+              <input
+                type="text"
+                class="form-control <%= typeof errors !== 'undefined' && errors.cnpj ? 'is-invalid' : '' %>"
+                id="cnpj"
+                name="cnpj"
+                value="<%= typeof dados !== 'undefined' && dados.cnpj ? dados.cnpj : empresa.cnpj %>"
+                required
+              >
+              <% if (typeof errors !== 'undefined' && errors.cnpj) { %>
+                <div class="invalid-feedback"><%= errors.cnpj %></div>
+              <% } %>
+            </div>
+
+            <div class="col-md-6 mb-3">
+              <label for="email" class="form-label fw-semibold">E-mail de Login</label>
+              <input
+                type="email"
+                class="form-control <%= typeof errors !== 'undefined' && errors.email ? 'is-invalid' : '' %>"
+                id="email"
+                name="email"
+                value="<%= typeof dados !== 'undefined' && dados.email ? dados.email : empresa.email %>"
+                required
+              >
+              <% if (typeof errors !== 'undefined' && errors.email) { %>
+                <div class="invalid-feedback"><%= errors.email %></div>
+              <% } %>
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <label for="senha" class="form-label fw-semibold">Nova Senha (opcional)</label>
+            <input
+              type="password"
+              class="form-control <%= typeof errors !== 'undefined' && errors.senha ? 'is-invalid' : '' %>"
+              id="senha"
+              name="senha"
+              placeholder="Deixe em branco para manter a senha atual"
+            >
+            <% if (typeof errors !== 'undefined' && errors.senha) { %>
+              <div class="invalid-feedback"><%= errors.senha %></div>
+            <% } %>
+            <div class="form-text">Preencha apenas se desejar redefinir sua senha de acesso.</div>
+          </div>
+
+          <div class="d-flex justify-content-end gap-2 mt-4">
+            <a href="/processos" class="btn btn-outline-secondary">Cancelar</a>
+            <button type="submit" class="btn btn-primary px-4">
+              <i class="bi bi-save me-1"></i>Salvar Alterações
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Zona de Perigo: Excluir Conta -->
+    <div class="card border-danger shadow-sm">
+      <div class="card-header bg-danger-subtle text-danger py-3">
+        <h6 class="fw-bold mb-0">
+          <i class="bi bi-exclamation-octagon-fill me-2"></i>Zona de Perigo
+        </h6>
+      </div>
+      <div class="card-body p-4">
+        <p class="text-muted small mb-3">
+          Ao excluir a conta da sua empresa, todos os clientes cadastrados, processos criados, documentos e históricos associados serão removidos permanentemente. Esta ação não pode ser desfeita.
+        </p>
+        <button type="button" class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#modalExcluirEmpresa">
+          <i class="bi bi-trash3 me-1"></i>Excluir Empresa Permanentemente
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Confirmação de Exclusão -->
+<div class="modal fade" id="modalExcluirEmpresa" tabindex="-1" aria-labelledby="modalExcluirEmpresaLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header bg-danger text-white">
+        <h5 class="modal-title" id="modalExcluirEmpresaLabel">Confirmar Exclusão de Empresa</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Fechar"></button>
+      </div>
+      <div class="modal-body">
+        <p class="mb-2"><strong>Atenção:</strong> Você está prestes a excluir a empresa <strong><%= empresa.razaoSocial %></strong>.</p>
+        <p class="text-danger small mb-0">
+          Todos os clientes, processos e arquivos salvos serão apagados do banco de dados em cascata imediatamente.
+        </p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+        <form action="/empresas/excluir" method="POST">
+          <button type="submit" class="btn btn-danger">Sim, Excluir Definitivamente</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<%- include('../partials/footer') %>

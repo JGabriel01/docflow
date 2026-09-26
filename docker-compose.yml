@@ -1,44 +1,37 @@
 services:
   db:
     image: mysql:8.0
-    command: --default-authentication-plugin=mysql_native_password
+    container_name: docflow_db
+    restart: always
     environment:
-      MYSQL_DATABASE: docflow
-      MYSQL_USER: docflow
-      MYSQL_PASSWORD: docflow
       MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: docflow
     ports:
       - "3306:3306"
     volumes:
-      - mysql_data:/var/lib/mysql
+      - db_data:/var/lib/mysql
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-udocflow", "-pdocflow"]
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-proot"]
       interval: 5s
       timeout: 5s
-      retries: 20
+      retries: 10
+
   app:
     build: .
+    container_name: docflow_app
+    restart: always
+    ports:
+      - "3000:3000"
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      BASE_URL: http://localhost:3000
+      DATABASE_URL: mysql://root:root@db:3306/docflow
+      SESSION_SECRET: docflow_session_secret_super_secure_key_12345
+      ENCRYPTION_KEY: f748968a35e54c9e22435a3b2ac07b2e068be160197c83f3120bc9622bf699c0
     depends_on:
       db:
         condition: service_healthy
-    environment:
-      DATABASE_URL: mysql://docflow:docflow@db:3306/docflow
-      SESSION_SECRET: change-me-in-production
-      PORT: 3000
-      APP_BASE_URL: http://localhost:3000
-      SMTP_HOST: ${SMTP_HOST:-}
-      SMTP_PORT: ${SMTP_PORT:-587}
-      SMTP_SECURE: ${SMTP_SECURE:-false}
-      SMTP_USER: ${SMTP_USER:-}
-      SMTP_PASS: ${SMTP_PASS:-}
-      SMTP_FROM: ${SMTP_FROM:-}
-      TWILIO_ACCOUNT_SID: ${TWILIO_ACCOUNT_SID:-}
-      TWILIO_AUTH_TOKEN: ${TWILIO_AUTH_TOKEN:-}
-      TWILIO_FROM: ${TWILIO_FROM:-}
-    ports:
-      - "3000:3000"
-    volumes:
-      - ./storage/uploads:/app/storage/uploads
-    command: sh -c "npx prisma migrate deploy && npm start"
+
 volumes:
-  mysql_data:
+  db_data:
