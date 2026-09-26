@@ -1,0 +1,141 @@
+<%- include('../partials/header') %>
+
+<div class="text-center mb-5">
+  <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-3 py-1.5 rounded-pill mb-2 fw-semibold">
+    <i class="bi bi-stars me-1"></i>PLANOS & PREÇOS
+  </span>
+  <h2 class="fw-bold mb-2">Escolha o plano ideal para a sua empresa</h2>
+  <p class="text-muted" style="max-width: 600px; margin: 0 auto;">
+    Automatize a coleta de documentos, elimine retrabalho e mantenha todo o histórico dos seus clientes seguro e organizado.
+  </p>
+</div>
+
+<div class="row justify-content-center g-4 mb-5">
+  <!-- Plano Grátis -->
+  <div class="col-lg-5 col-md-6">
+    <div class="card h-100 shadow-sm border-0 position-relative">
+      <% if (empresa.plano === 'GRATIS') { %>
+        <span class="position-absolute top-0 start-50 translate-middle badge bg-secondary px-3 py-1.5 rounded-pill shadow-sm">
+          Seu Plano Atual
+        </span>
+      <% } %>
+      <div class="card-body p-4 d-flex flex-column">
+        <h4 class="fw-bold text-dark mb-1">Plano Grátis</h4>
+        <p class="text-muted small mb-4">Para profissionais e empresas que estão começando.</p>
+
+        <div class="mb-4">
+          <span class="display-5 fw-bold text-dark">R$ 0</span>
+          <span class="text-muted">/ para sempre</span>
+        </div>
+
+        <ul class="list-unstyled d-flex flex-column gap-3 mb-4">
+          <li class="d-flex align-items-center gap-2 small">
+            <i class="bi bi-check-circle-fill text-success fs-5"></i>
+            <span>Cadastro ilimitado de clientes</span>
+          </li>
+          <li class="d-flex align-items-center gap-2 small">
+            <i class="bi bi-check-circle-fill text-success fs-5"></i>
+            <span>Criação de checklists de processos</span>
+          </li>
+          <li class="d-flex align-items-center gap-2 small">
+            <i class="bi bi-check-circle-fill text-success fs-5"></i>
+            <span>Link único de envio por processo</span>
+          </li>
+          <li class="d-flex align-items-center gap-2 small">
+            <i class="bi bi-check-circle-fill text-success fs-5"></i>
+            <span>Armazenamento criptografado (AES-256-GCM)</span>
+          </li>
+          <li class="d-flex align-items-center gap-2 small">
+            <i class="bi bi-check-circle-fill text-success fs-5"></i>
+            <span>Conclusão automática dos processos</span>
+          </li>
+          <li class="d-flex align-items-center gap-2 small text-muted">
+            <i class="bi bi-x-circle text-muted fs-5"></i>
+            <span class="text-decoration-line-through">Histórico de documentos do cliente</span>
+          </li>
+          <li class="d-flex align-items-center gap-2 small text-muted">
+            <i class="bi bi-x-circle text-muted fs-5"></i>
+            <span class="text-decoration-line-through">Lembretes automáticos de pendências</span>
+          </li>
+        </ul>
+
+        <div class="mt-auto">
+          <% if (empresa.plano === 'GRATIS') { %>
+            <button class="btn btn-outline-secondary w-100 py-2" disabled>
+              <i class="bi bi-check2 me-1"></i>Plano Ativo
+            </button>
+          <% } else { %>
+            <form action="/planos/cancelar" method="POST" onsubmit="return confirm('Deseja realmente voltar para o Plano Grátis? Você perderá acesso ao Histórico e aos Lembretes automáticos.');">
+              <button type="submit" class="btn btn-outline-secondary w-100 py-2">
+                Downgrade para Plano Grátis
+              </button>
+            </form>
+          <% } %>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Plano Pro -->
+  <div class="col-lg-5 col-md-6">
+    <div class="card h-100 shadow border-2 border-primary position-relative" style="background: linear-gradient(180deg, #ffffff 0%, #f5f3ff 100%);">
+      <span class="position-absolute top-0 start-50 translate-middle badge badge-pro px-3 py-1.5 rounded-pill shadow-sm">
+        <i class="bi bi-star-fill me-1"></i>RECOMENDADO
+      </span>
+      <div class="card-body p-4 d-flex flex-column">
+        <div class="d-flex justify-content-between align-items-center mb-1">
+          <h4 class="fw-bold text-primary mb-0">Plano Pro</h4>
+          <span class="badge badge-pro">Completo</span>
+        </div>
+        <p class="text-muted small mb-4">Para máxima produtividade, automação e histórico seguro.</p>
+
+        <div class="mb-4">
+          <span class="display-5 fw-bold text-dark">R$ 29,90</span>
+          <span class="text-muted">/ mês</span>
+        </div>
+
+        <ul class="list-unstyled d-flex flex-column gap-3 mb-4">
+          <li class="d-flex align-items-center gap-2 small fw-semibold">
+            <i class="bi bi-check-circle-fill text-primary fs-5"></i>
+            <span>Tudo incluído no Plano Grátis</span>
+          </li>
+          <li class="d-flex align-items-center gap-2 small fw-semibold">
+            <i class="bi bi-check-circle-fill text-primary fs-5"></i>
+            <span>Histórico completo de documentos por cliente (RF11)</span>
+          </li>
+          <li class="d-flex align-items-center gap-2 small fw-semibold">
+            <i class="bi bi-check-circle-fill text-primary fs-5"></i>
+            <span>Lembretes automáticos para clientes com pendências (RF10)</span>
+          </li>
+          <li class="d-flex align-items-center gap-2 small">
+            <i class="bi bi-check-circle-fill text-primary fs-5"></i>
+            <span>Uploads e downloads ilimitados no banco de dados</span>
+          </li>
+          <li class="d-flex align-items-center gap-2 small">
+            <i class="bi bi-check-circle-fill text-primary fs-5"></i>
+            <span>Selo Pro exclusivo em todo o painel</span>
+          </li>
+          <li class="d-flex align-items-center gap-2 small">
+            <i class="bi bi-check-circle-fill text-primary fs-5"></i>
+            <span>Sem fidelidade: cancele quando quiser</span>
+          </li>
+        </ul>
+
+        <div class="mt-auto">
+          <% if (empresa.plano === 'PRO') { %>
+            <div class="alert alert-success py-2 text-center mb-0 small fw-bold">
+              <i class="bi bi-check-circle-fill me-1"></i>Sua Empresa já é PRO!
+            </div>
+          <% } else { %>
+            <a href="/planos/checkout" class="btn btn-primary w-100 py-2.5 fw-bold shadow-sm d-flex align-items-center justify-content-center gap-2">
+              <i class="bi bi-lightning-charge-fill"></i>
+              <span>Assinar Plano Pro por R$ 29,90/mês</span>
+            </a>
+          <% } %>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<%- include('../partials/footer') %>

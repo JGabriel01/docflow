@@ -25,17 +25,24 @@
               <i class="bi bi-building me-1"></i>Minha Empresa
             </a>
           </li>
+          <li class="nav-item">
+            <a class="nav-link" href="/planos">
+              <i class="bi bi-gem me-1"></i>Planos
+            </a>
+          </li>
         </ul>
         <div class="d-flex align-items-center gap-3">
-          <% if (empresa.plano === 'PRO') { %>
-            <span class="badge badge-pro px-2.5 py-1.5 rounded-pill shadow-sm">
-              <i class="bi bi-star-fill me-1"></i>PLANO PRO
-            </span>
-          <% } else { %>
-            <span class="badge bg-secondary px-2.5 py-1.5 rounded-pill">
-              PLANO GRÁTIS
-            </span>
-          <% } %>
+          <a href="/planos" class="text-decoration-none" title="Gerenciar Plano">
+            <% if (empresa.plano === 'PRO') { %>
+              <span class="badge badge-pro px-2.5 py-1.5 rounded-pill shadow-sm">
+                <i class="bi bi-star-fill me-1"></i>PLANO PRO
+              </span>
+            <% } else { %>
+              <span class="badge bg-secondary px-2.5 py-1.5 rounded-pill text-white">
+                PLANO GRÁTIS &bull; <span class="text-warning fw-bold">Upgrade</span>
+              </span>
+            <% } %>
+          </a>
           <div class="text-light small text-truncate" style="max-width: 180px;" title="<%= empresa.razaoSocial %>">
             <%= empresa.razaoSocial %>
           </div>

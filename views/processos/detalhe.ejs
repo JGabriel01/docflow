@@ -67,32 +67,63 @@
 
       <!-- Disparo de Link por E-mail ou WhatsApp -->
       <div class="col-lg-5">
-        <label class="form-label fw-bold text-dark mb-1">Enviar link diretamente:</label>
-        <p class="text-muted small mb-2">Disparar notificação pelos canais cadastrados do cliente.</p>
-        <div class="d-flex gap-2 flex-wrap">
-          <form action="/processos/<%= processo.id %>/enviar-link" method="POST" class="d-inline">
-            <input type="hidden" name="canalEnvio" value="EMAIL">
-            <button
-              type="submit"
-              class="btn btn-outline-primary btn-sm d-flex align-items-center gap-1"
-              <%= !processo.cliente.email ? 'disabled' : '' %>
-              title="<%= processo.cliente.email ? `Enviar para ${processo.cliente.email}` : 'Cliente sem e-mail cadastrado' %>"
-            >
-              <i class="bi bi-envelope"></i>
-              <span>Enviar por E-mail</span>
-            </button>
-          </form>
+        <label class="form-label fw-bold text-dark mb-1">Enviar link ao cliente:</label>
+        <p class="text-muted small mb-2">Envie diretamente pelo WhatsApp Web ou por E-mail.</p>
+        
+        <%
+          const telLimpo = processo.cliente.telefone ? processo.cliente.telefone.replace(/\D/g, '') : '';
+          const ddiTel = telLimpo.startsWith('55') ? telLimpo : ('55' + telLimpo);
+          const textoMsg = encodeURIComponent(`Olá ${processo.cliente.nome}, por favor acesse o link abaixo para enviar os documentos solicitados no DocFlow (${processo.nomeProcesso}):\n${linkUpload}`);
+          const whatsappUrl = `https://wa.me/${ddiTel}?text=${textoMsg}`;
+          const assuntoEmail = encodeURIComponent(`Documentos solicitados: ${processo.nomeProcesso}`);
+          const corpoEmail = encodeURIComponent(`Olá ${processo.cliente.nome},\n\nPor favor, acesse o link seguro abaixo para enviar os documentos da sua checklist:\n${linkUpload}\n\nAtenciosamente,\n${typeof empresa !== 'undefined' && empresa ? empresa.razaoSocial : 'DocFlow'}`);
+          const mailtoUrl = `mailto:${processo.cliente.email || ''}?subject=${assuntoEmail}&body=${corpoEmail}`;
+        %>
 
-          <form action="/processos/<%= processo.id %>/enviar-link" method="POST" class="d-inline">
-            <input type="hidden" name="canalEnvio" value="WHATSAPP">
-            <button
-              type="submit"
-              class="btn btn-outline-success btn-sm d-flex align-items-center gap-1"
-              <%= !processo.cliente.telefone ? 'disabled' : '' %>
-              title="<%= processo.cliente.telefone ? `Enviar para ${processo.cliente.telefone}` : 'Cliente sem telefone cadastrado' %>"
+        <div class="d-flex gap-2 flex-wrap">
+          <!-- WhatsApp Direto (Web/App) -->
+          <% if (processo.cliente.telefone) { %>
+            <a
+              href="<%= whatsappUrl %>"
+              target="_blank"
+              class="btn btn-success btn-sm d-flex align-items-center gap-1 shadow-sm"
+              title="Abrir conversa no WhatsApp com a mensagem e link prontos"
             >
               <i class="bi bi-whatsapp"></i>
-              <span>Enviar por WhatsApp</span>
+              <span>Abrir no WhatsApp</span>
+            </a>
+          <% } else { %>
+            <button class="btn btn-outline-secondary btn-sm" disabled title="Cliente sem telefone cadastrado">
+              <i class="bi bi-whatsapp"></i> Sem WhatsApp
+            </button>
+          <% } %>
+
+          <!-- E-mail Direto (Mailto) -->
+          <% if (processo.cliente.email) { %>
+            <a
+              href="<%= mailtoUrl %>"
+              class="btn btn-primary btn-sm d-flex align-items-center gap-1 shadow-sm"
+              title="Abrir no seu aplicativo de e-mail com a mensagem e link preenchidos"
+            >
+              <i class="bi bi-envelope"></i>
+              <span>Abrir E-mail</span>
+            </a>
+          <% } else { %>
+            <button class="btn btn-outline-secondary btn-sm" disabled title="Cliente sem e-mail cadastrado">
+              <i class="bi bi-envelope"></i> Sem E-mail
+            </button>
+          <% } %>
+
+          <!-- Registrar envio no servidor -->
+          <form action="/processos/<%= processo.id %>/enviar-link" method="POST" class="d-inline">
+            <input type="hidden" name="canalEnvio" value="<%= processo.cliente.email ? 'EMAIL' : 'WHATSAPP' %>">
+            <button
+              type="submit"
+              class="btn btn-outline-secondary btn-sm"
+              title="Registrar envio de link no sistema"
+            >
+              <i class="bi bi-check2"></i>
+              <span>Registrar</span>
             </button>
           </form>
         </div>

@@ -1,0 +1,211 @@
+<%- include('../partials/header') %>
+
+<div class="row justify-content-center">
+  <div class="col-lg-9">
+    <div class="mb-4">
+      <a href="/planos" class="text-decoration-none small text-muted">
+        <i class="bi bi-arrow-left me-1"></i>Voltar para a tabela de planos
+      </a>
+      <h3 class="fw-bold text-dark mt-2 mb-1">Finalizar Assinatura do Plano Pro</h3>
+      <p class="text-muted small">Ativação instantânea para a empresa <strong><%= empresa.razaoSocial %></strong></p>
+    </div>
+
+    <% if (typeof errors !== 'undefined' && errors.cartao) { %>
+      <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <i class="bi bi-exclamation-triangle-fill me-2"></i><%= errors.cartao %>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+      </div>
+    <% } %>
+
+    <div class="row g-4">
+      <!-- Coluna da Forma de Pagamento -->
+      <div class="col-md-7">
+        <div class="card shadow-sm border-0 mb-4">
+          <div class="card-header bg-white py-3 border-bottom">
+            <h5 class="fw-bold mb-0">
+              <i class="bi bi-credit-card-2-front text-primary me-2"></i>Forma de Pagamento
+            </h5>
+          </div>
+          <div class="card-body p-4">
+            <!-- Nav tabs para Pix e Cartão -->
+            <ul class="nav nav-pills nav-fill mb-4" id="pills-tab" role="tablist">
+              <li class="nav-item" role="presentation">
+                <button
+                  class="nav-link active fw-semibold d-flex align-items-center justify-content-center gap-2"
+                  id="pills-pix-tab"
+                  data-bs-toggle="pill"
+                  data-bs-target="#pills-pix"
+                  type="button"
+                  role="tab"
+                  aria-selected="true"
+                >
+                  <i class="bi bi-qr-code"></i> Pix (Instantâneo)
+                </button>
+              </li>
+              <li class="nav-item" role="presentation">
+                <button
+                  class="nav-link fw-semibold d-flex align-items-center justify-content-center gap-2"
+                  id="pills-cartao-tab"
+                  data-bs-toggle="pill"
+                  data-bs-target="#pills-cartao"
+                  type="button"
+                  role="tab"
+                  aria-selected="false"
+                >
+                  <i class="bi bi-credit-card"></i> Cartão de Crédito
+                </button>
+              </li>
+            </ul>
+
+            <div class="tab-content" id="pills-tabContent">
+              <!-- Aba PIX -->
+              <div class="tab-pane fade show active text-center" id="pills-pix" role="tabpanel">
+                <div class="p-3 bg-light rounded border mb-3">
+                  <div class="d-inline-block bg-white p-3 rounded shadow-sm mb-3">
+                    <!-- QR Code SVG ilustrativo e escaneável -->
+                    <svg class="mx-auto" width="180" height="180" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <rect width="100" height="100" fill="white"/>
+                      <path fill-rule="evenodd" clip-rule="evenodd" d="M10 10H40V40H10V10ZM15 15V35H35V15H15Z" fill="#1e293b"/>
+                      <rect x="20" y="20" width="10" height="10" fill="#6366f1"/>
+                      <path fill-rule="evenodd" clip-rule="evenodd" d="M60 10H90V40H60V10ZM65 15V35H85V15H65Z" fill="#1e293b"/>
+                      <rect x="70" y="20" width="10" height="10" fill="#6366f1"/>
+                      <path fill-rule="evenodd" clip-rule="evenodd" d="M10 60H40V90H10V60ZM15 65V85H35V65H15Z" fill="#1e293b"/>
+                      <rect x="20" y="70" width="10" height="10" fill="#6366f1"/>
+                      <rect x="60" y="60" width="10" height="10" fill="#1e293b"/>
+                      <rect x="80" y="60" width="10" height="10" fill="#1e293b"/>
+                      <rect x="70" y="70" width="10" height="10" fill="#1e293b"/>
+                      <rect x="60" y="80" width="10" height="10" fill="#1e293b"/>
+                      <rect x="80" y="80" width="10" height="10" fill="#1e293b"/>
+                      <rect x="45" y="15" width="10" height="10" fill="#1e293b"/>
+                      <rect x="45" y="35" width="10" height="10" fill="#6366f1"/>
+                      <rect x="45" y="55" width="10" height="10" fill="#1e293b"/>
+                      <rect x="45" y="75" width="10" height="10" fill="#1e293b"/>
+                    </svg>
+                  </div>
+                  <div class="small text-muted mb-2">Abra o app do seu banco e escaneie o código acima ou copie o código Pix abaixo:</div>
+                  <div class="input-group mb-2">
+                    <input type="text" class="form-control form-control-sm font-monospace bg-white" id="pixCodeInput" value="<%= pixCodigo %>" readonly>
+                    <button type="button" class="btn btn-sm btn-outline-secondary" id="btnCopiarPix" onclick="copiarTexto('<%= pixCodigo %>', 'btnCopiarPix')">
+                      <i class="bi bi-clipboard"></i> Copiar
+                    </button>
+                  </div>
+                </div>
+
+                <form action="/planos/checkout" method="POST">
+                  <input type="hidden" name="metodoPagamento" value="PIX">
+                  <button type="submit" class="btn btn-success w-100 py-2.5 fw-bold shadow-sm d-flex align-items-center justify-content-center gap-2">
+                    <i class="bi bi-check-circle-fill"></i>
+                    <span>Confirmar Pagamento Pix (R$ 29,90)</span>
+                  </button>
+                </form>
+              </div>
+
+              <!-- Aba CARTÃO DE CRÉDITO -->
+              <div class="tab-pane fade" id="pills-cartao" role="tabpanel">
+                <form action="/planos/checkout" method="POST" novalidate>
+                  <input type="hidden" name="metodoPagamento" value="CARTAO">
+
+                  <div class="mb-3">
+                    <label class="form-label small fw-semibold">Número do Cartão</label>
+                    <div class="input-group">
+                      <span class="input-group-text bg-white"><i class="bi bi-credit-card"></i></span>
+                      <input
+                        type="text"
+                        name="numeroCartao"
+                        class="form-control"
+                        placeholder="0000 0000 0000 0000"
+                        maxlength="19"
+                        value="4532 1122 3344 5566"
+                        required
+                      >
+                    </div>
+                  </div>
+
+                  <div class="mb-3">
+                    <label class="form-label small fw-semibold">Nome Impresso no Cartão</label>
+                    <input
+                      type="text"
+                      name="nomeCartao"
+                      class="form-control text-uppercase"
+                      placeholder="NOME COMO NO CARTAO"
+                      value="<%= empresa.razaoSocial.toUpperCase() %>"
+                      required
+                    >
+                  </div>
+
+                  <div class="row">
+                    <div class="col-6 mb-3">
+                      <label class="form-label small fw-semibold">Validade</label>
+                      <input type="text" name="validade" class="form-control" placeholder="MM/AA" maxlength="5" value="12/28" required>
+                    </div>
+                    <div class="col-6 mb-3">
+                      <label class="form-label small fw-semibold">CVV</label>
+                      <input type="password" name="cvv" class="form-control" placeholder="123" maxlength="4" value="123" required>
+                    </div>
+                  </div>
+
+                  <button type="submit" class="btn btn-primary w-100 py-2.5 fw-bold shadow-sm d-flex align-items-center justify-content-center gap-2 mt-2">
+                    <i class="bi bi-lock-fill"></i>
+                    <span>Pagar R$ 29,90 e Ativar Plano Pro</span>
+                  </button>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="d-flex align-items-center justify-content-center gap-4 text-muted small">
+          <div class="d-flex align-items-center gap-1">
+            <i class="bi bi-shield-check text-success fs-5"></i>
+            <span>Ambiente Seguro SSL</span>
+          </div>
+          <div class="d-flex align-items-center gap-1">
+            <i class="bi bi-lightning-charge text-warning fs-5"></i>
+            <span>Liberação Imediata</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Resumo do Pedido -->
+      <div class="col-md-5">
+        <div class="card shadow-sm border-0 bg-white">
+          <div class="card-header bg-light py-3">
+            <h6 class="fw-bold mb-0 text-dark">Resumo da Assinatura</h6>
+          </div>
+          <div class="card-body p-4">
+            <div class="d-flex justify-content-between align-items-start mb-3">
+              <div>
+                <h6 class="fw-bold mb-0">Assinatura DocFlow Pro</h6>
+                <small class="text-muted">Mensalidade recorrente</small>
+              </div>
+              <span class="badge badge-pro">PRO</span>
+            </div>
+
+            <hr>
+
+            <div class="d-flex justify-content-between small text-muted mb-2">
+              <span>Subtotal:</span>
+              <span>R$ 29,90</span>
+            </div>
+            <div class="d-flex justify-content-between small text-muted mb-3">
+              <span>Desconto promocional:</span>
+              <span class="text-success">R$ 0,00</span>
+            </div>
+
+            <div class="d-flex justify-content-between fw-bold fs-5 text-dark mb-4 pt-2 border-top">
+              <span>Total a pagar:</span>
+              <span class="text-primary">R$ 29,90 <span class="fs-6 text-muted fw-normal">/ mês</span></span>
+            </div>
+
+            <div class="bg-light p-3 rounded small text-muted">
+              <i class="bi bi-info-circle text-primary me-1"></i>
+              Ao assinar o Plano Pro, você desbloqueia imediatamente o <strong>Histórico de Documentos</strong> por cliente e a rotina de <strong>Lembretes automáticos</strong>. Sem fidelidade mínima.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<%- include('../partials/footer') %>

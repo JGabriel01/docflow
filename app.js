@@ -67,6 +67,7 @@ const empresaRoutes = require('./routes/empresaRoutes');
 const clienteRoutes = require('./routes/clienteRoutes');
 const processoRoutes = require('./routes/processoRoutes');
 const uploadRoutes = require('./routes/uploadRoutes');
+const planoRoutes = require('./routes/planoRoutes');
 
 // Rota raiz
 app.get('/', (req, res) => {
@@ -82,6 +83,7 @@ app.use('/empresas', empresaRoutes);
 app.use('/clientes', clienteRoutes);
 app.use('/processos', processoRoutes);
 app.use('/upload', uploadRoutes);
+app.use('/planos', planoRoutes);
 
 // Tratamento de Rota Não Encontrada (404)
 app.use((req, res, next) => {
